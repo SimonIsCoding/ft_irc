@@ -1,6 +1,7 @@
 #include "../include/Server.hpp"
+#include "../include/Client.hpp"
 
-IRCServer::IRCServer(int port) : port(port) {
+IRCServer::IRCServer(int port) : port(port), max_fd(0) {
     // Create socket
     if ((server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
         throw std::runtime_error("Socket creation failed");
@@ -26,46 +27,109 @@ IRCServer::IRCServer(int port) : port(port) {
     if (listen(server_fd, 3) < 0) {
         throw std::runtime_error("Listen failed");
     }
+
+    // Initialize fd_set
+    FD_ZERO(&master_fds);
+    FD_SET(server_fd, &master_fds);
+    max_fd = server_fd;
+}
+
+IRCServer::~IRCServer() {
+    // Clean up all clients
+    for (std::vector<Client*>::iterator it = clients.begin(); it != clients.end(); ++it) {
+        delete *it;
+    }
+    clients.clear();
+    close(server_fd);
 }
 
 void IRCServer::run() {
     std::cout << "IRC Server running on port " << port << std::endl;
     
     while (true) {
-        int new_socket;
-        int addrlen = sizeof(address);
+        fd_set read_fds = master_fds;
         
-        // Accept new connection
-        if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0) {
-            std::cerr << "Accept failed" << std::endl;
+        if (select(max_fd + 1, &read_fds, NULL, NULL, NULL) < 0) {
+            std::cerr << "Select failed" << std::endl;
             continue;
         }
 
-        std::cout << "New client connected" << std::endl;
-        handleClient(new_socket);
+        // Check for new connections
+        if (FD_ISSET(server_fd, &read_fds)) {
+            handleNewConnection();
+        }
+
+        // Check for client messages
+        for (std::vector<Client*>::iterator it = clients.begin(); it != clients.end();) {
+            Client* client = *it;
+            if (FD_ISSET(client->getSocket(), &read_fds)) {
+                handleClientMessage(client);
+            }
+            ++it;
+        }
     }
 }
 
-void IRCServer::handleClient(int client_socket) {
-    char buffer[BUFFER_SIZE];
-    std::fill_n(buffer, BUFFER_SIZE, 0);
+void IRCServer::handleNewConnection() {
+    int new_socket;
+    int addrlen = sizeof(address);
     
-    while (true) {
-        // Read client request
-        int valread = read(client_socket, buffer, BUFFER_SIZE);
-        if (valread <= 0) {
-            std::cout << "Client disconnected" << std::endl;
-            break;
-        }
-
-        // Process the request
-        std::string request(buffer, valread);
-        std::cout << "Received: " << request << std::endl;
-
-        // Send response (echo for now)
-        send(client_socket, buffer, strlen(buffer), 0);
-        memset(buffer, 0, BUFFER_SIZE);
+    if ((new_socket = accept(server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0) {
+        std::cerr << "Accept failed" << std::endl;
+        return;
     }
 
-    close(client_socket);
+    // Add new client
+    Client* new_client = new Client(new_socket);
+    clients.push_back(new_client);
+    
+    // Update fd_set
+    FD_SET(new_socket, &master_fds);
+    if (new_socket > max_fd) {
+        max_fd = new_socket;
+    }
+
+    std::cout << "New client connected. Total clients: " << clients.size() << std::endl;
+}
+
+void IRCServer::handleClientMessage(Client* client) {
+    std::string message = client->receiveMessage();
+    if (message.empty()) {
+        std::cout << "Client disconnected" << std::endl;
+        removeClient(client);
+        return;
+    }
+
+    std::cout << "Received from client " << client->getNickname() << ": " << message << std::endl;
+    
+    // Broadcast message to all clients
+    for (std::vector<Client*>::iterator it = clients.begin(); it != clients.end(); ++it) {
+        if (*it != client) {
+            (*it)->sendMessage(message);
+        }
+    }
+}
+
+void IRCServer::removeClient(Client* client) {
+    // Remove from fd_set
+    FD_CLR(client->getSocket(), &master_fds);
+    
+    // Remove from clients vector
+    for (std::vector<Client*>::iterator it = clients.begin(); it != clients.end(); ++it) {
+        if (*it == client) {
+            delete *it;
+            clients.erase(it);
+            break;
+        }
+    }
+
+    // Update max_fd if needed
+    if (client->getSocket() == max_fd) {
+        max_fd = server_fd;
+        for (std::vector<Client*>::iterator it = clients.begin(); it != clients.end(); ++it) {
+            if ((*it)->getSocket() > max_fd) {
+                max_fd = (*it)->getSocket();
+            }
+        }
+    }
 }
