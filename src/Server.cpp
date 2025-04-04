@@ -114,22 +114,12 @@ void IRCServer::handleClientMessage(Client* client) {
 		return;
 	}
 	std::istringstream strm_msg(message);
-	commands = ["PASS", "USER", "NICK"];
+	std::string commands[] = {"PASS", "USER", "NICK"};
 	strm_msg >> command;
 	for (int i = 0 ; i < 3 ; i++){ // 3 is the len of commands
 		if (commands[i] == command)
 			break;
 	}
-	// std::cout << "Received from client " << client->getNickname() << ": " << message << std::endl;
-
-	// // Broadcast message to all _clients
-	// for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
-	// 	if ((*it).second != client) {
-	// 		(*it).second->sendMessage(message);
-	// 	}
-	// }
-
-
 }
 
 void IRCServer::removeClient(Client* client) {
