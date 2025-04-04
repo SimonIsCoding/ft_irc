@@ -72,12 +72,6 @@ void IRCServer::run() {
 			{
 				handleClientMessage(_clients[events[i].data.fd]);
 				break;
-				// for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
-				// 	if ((*it)->getSocket() == events[i].data.fd) {
-				// 		handleClientMessage(*it);
-				// 		break;
-				// 	}
-				// }
 			}
 		}
 
@@ -113,20 +107,29 @@ void IRCServer::handleNewConnection() {
 
 void IRCServer::handleClientMessage(Client* client) {
 	std::string message = client->receiveMessage();
+	std::string command;
 	if (message.empty()) {
 		std::cout << "Client disconnected" << std::endl;
 		removeClient(client);
 		return;
 	}
-
-	std::cout << "Received from client " << client->getNickname() << ": " << message << std::endl;
-
-	// Broadcast message to all _clients
-	for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
-		if ((*it).second != client) {
-			(*it).second->sendMessage(message);
-		}
+	std::istringstream strm_msg(message);
+	commands = ["PASS", "USER", "NICK"];
+	strm_msg >> command;
+	for (int i = 0 ; i < 3 ; i++){ // 3 is the len of commands
+		if (commands[i] == command)
+			break;
 	}
+	// std::cout << "Received from client " << client->getNickname() << ": " << message << std::endl;
+
+	// // Broadcast message to all _clients
+	// for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+	// 	if ((*it).second != client) {
+	// 		(*it).second->sendMessage(message);
+	// 	}
+	// }
+
+
 }
 
 void IRCServer::removeClient(Client* client) {

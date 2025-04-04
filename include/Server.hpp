@@ -11,6 +11,7 @@
 #include <iostream>
 #include <sys/epoll.h>
 #include <map>
+#include <sstream>
 
 #define MAX_EVENTS	10
 #include "Client.hpp"

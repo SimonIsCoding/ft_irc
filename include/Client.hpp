@@ -10,7 +10,7 @@
 
 class Client {
 	private:
-		int socket_fd;
+		int socket_fdbeginning
 		std::string nickname;
 		std::string username;
 		bool is_registered;
