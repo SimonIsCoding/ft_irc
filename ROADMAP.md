@@ -14,4 +14,3 @@
 	- [ ] Check if user is connected
 
 ## 2. Client
-

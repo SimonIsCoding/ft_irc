@@ -1,7 +1,7 @@
 #include "../include/Server.hpp"
 #include "../include/Client.hpp"
 
-IRCServer::IRCServer(int _port) : _port(_port) {
+IRCServer::IRCServer(int _port, std::string pass) : _port(_port), _password(pass) {
 	// Create socket
 	if ((_server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
 		throw std::runtime_error("Socket creation failed");
@@ -42,8 +42,8 @@ IRCServer::IRCServer(int _port) : _port(_port) {
 
 IRCServer::~IRCServer() {
 	// Clean up all _clients
-	for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
-		delete *it;
+	for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+		delete (*it).second;
 	}
 	_clients.clear();
 	close(_server_fd);
@@ -65,19 +65,22 @@ void IRCServer::run() {
 		for (int i = 0; i < nb_events; i++)
 		{
 			if (events[i].data.fd == STDIN_FILENO)
-				std::cout << "EXIT\n";//check stdin for exit
+				throw std::runtime_error("Exited program");
 			else if (events[i].data.fd == this->_server_fd)//receive new connection
 				handleNewConnection();
 			else
 			{
-				for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
-                    if ((*it)->getSocket() == events[i].data.fd) {
-                        handleClientMessage(*it);
-                        break;
-                    }
-                }
+				handleClientMessage(_clients[events[i].data.fd]);
+				break;
+				// for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+				// 	if ((*it)->getSocket() == events[i].data.fd) {
+				// 		handleClientMessage(*it);
+				// 		break;
+				// 	}
+				// }
 			}
 		}
+
 
 	}
 }
@@ -94,7 +97,8 @@ void IRCServer::handleNewConnection() {
 
 	// Add new client
 	Client* new_client = new Client(client_fd);
-	_clients.push_back(new_client);
+	std::cout << "new allocation made\n";
+	_clients.insert(std::make_pair(client_fd, new_client));
 
 	struct epoll_event ev;
 	ev.events = EPOLLIN;
@@ -118,22 +122,22 @@ void IRCServer::handleClientMessage(Client* client) {
 	std::cout << "Received from client " << client->getNickname() << ": " << message << std::endl;
 
 	// Broadcast message to all _clients
-	for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
-		if (*it != client) {
-			(*it)->sendMessage(message);
+	for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+		if ((*it).second != client) {
+			(*it).second->sendMessage(message);
 		}
 	}
 }
 
 void IRCServer::removeClient(Client* client) {
-	epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client->getSocket(), NULL);//getSocket get socket client
+	epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client->getSocket(), NULL);
 
-	// Remove from _clients vector
-	for (std::vector<Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
-		if (*it == client) {
-			delete *it;
+	for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+		if (it->second == client) {
 			_clients.erase(it);
+			delete (*it).second;
 			break;
 		}
 	}
 }
+
