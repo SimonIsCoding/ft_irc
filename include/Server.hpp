@@ -12,9 +12,11 @@
 #include <sys/epoll.h>
 #include <map>
 #include <sstream>
+#include <algorithm>
 
 #define MAX_EVENTS	10
 #include "Client.hpp"
+
 
 class IRCServer {
 	private:
@@ -26,8 +28,10 @@ class IRCServer {
 		std::map<int, Client*> _clients;
 		int _epoll_fd;
 		void handleNewConnection();
-		void handleClientMessage(Client* client);
+		void handleClientMessage(int client_fd);
 		void removeClient(Client* client);
+		void parsing(int client_fd, std::istringstream &strm_msg);
+		bool checkEmpty(std::istringstream &content);
 
 	public:
 		IRCServer(int port, std::string password);

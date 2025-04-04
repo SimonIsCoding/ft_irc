@@ -13,10 +13,11 @@ class Client {
 		int socket_fd;
 		std::string nickname;
 		std::string username;
-		bool is_registered;
+
 		static const int BUFFER_SIZE = 1024;
 
-	public:
+		public:
+		bool is_registered;
 		Client(int socket);
 		~Client();
 

@@ -1,6 +1,7 @@
 #include "../include/Server.hpp"
 #include "../include/Client.hpp"
 
+
 IRCServer::IRCServer(int _port, std::string pass) : _port(_port), _password(pass) {
 	// Create socket
 	if ((_server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
@@ -56,7 +57,7 @@ void IRCServer::run() {
 
 	while (true) {
 		int	nb_events = epoll_wait(this->_epoll_fd, events, MAX_EVENTS, -1);
-		std::cout << "hola\n";
+		// std::cout << "hola\n";
 		if (nb_events == -1)
 		{
 			std::cerr << "epoll_wait failed\n";
@@ -70,7 +71,7 @@ void IRCServer::run() {
 				handleNewConnection();
 			else
 			{
-				handleClientMessage(_clients[events[i].data.fd]);
+				handleClientMessage(events[i].data.fd);
 				break;
 			}
 		}
@@ -105,21 +106,15 @@ void IRCServer::handleNewConnection() {
 	std::cout << "New client connected. Total _clients: " << _clients.size() << std::endl;
 }
 
-void IRCServer::handleClientMessage(Client* client) {
-	std::string message = client->receiveMessage();
-	std::string command;
+void IRCServer::handleClientMessage(int client_fd) {
+	std::string message = _clients[client_fd]->receiveMessage();
 	if (message.empty()) {
 		std::cout << "Client disconnected" << std::endl;
-		removeClient(client);
+		removeClient(_clients[client_fd]);
 		return;
 	}
 	std::istringstream strm_msg(message);
-	std::string commands[] = {"PASS", "USER", "NICK"};
-	strm_msg >> command;
-	for (int i = 0 ; i < 3 ; i++){ // 3 is the len of commands
-		if (commands[i] == command)
-			break;
-	}
+	parsing(client_fd, strm_msg);
 }
 
 void IRCServer::removeClient(Client* client) {
@@ -134,3 +129,12 @@ void IRCServer::removeClient(Client* client) {
 	}
 }
 
+bool	IRCServer::checkEmpty(std::istringstream &content)
+{
+	std::string tmp;
+
+	content >> tmp;
+	if (tmp.empty())
+		return (true);
+	return (false);
+}
