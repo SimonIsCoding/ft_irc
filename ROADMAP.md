@@ -7,10 +7,10 @@
 	- [X] User class
 	- [X] Handle multiple connection on the same ip
 	- [ ] Parse command instead of HandleClientMessage
-	- [ ] Check if password is correct
-	- [ ] Check if nickname is already used
-	- [ ] Check if nickname is valid
-	- [ ] Check if user is set
+	- [X] Check if password is correct
+	- [X] Check if nickname is already used
+	- [X] Check if nickname is valid
+	- [X] Check if user is set
 	- [ ] Check if user is connected
 
 ## 2. Client

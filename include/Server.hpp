@@ -13,6 +13,8 @@
 #include <map>
 #include <sstream>
 #include <algorithm>
+#include <cctype>
+
 
 #define MAX_EVENTS	10
 #include "Client.hpp"
@@ -32,15 +34,18 @@ class IRCServer {
 		void removeClient(Client* client);
 		void parsing(int client_fd, std::istringstream &strm_msg);
 		bool checkEmpty(std::istringstream &content);
+		bool check_realname_syntax(const std::string &content);
 		void clientLog(int fd, std::string message);
 
 		void pass(int fd, std::istringstream &strm_msg);
 		void nick(int fd, std::istringstream &strm_msg);
+		void user(int fd, std::istringstream &strm_msg);
 
 	public:
 		IRCServer(int port, std::string password);
 		~IRCServer();
 		void run();
+		
 };
 
 #endif

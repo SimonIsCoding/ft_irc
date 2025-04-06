@@ -17,7 +17,8 @@ void IRCServer::parsing(int client_fd, std::istringstream &strm_msg){
 			pass(client_fd, strm_msg);
 			break;
 		case (1):
-			clientLog(client_fd, "This command is useless, why is it here anyway ?\n");
+			// clientLog(client_fd, "This command is useless, why is it here anyway ?\n");
+			user(client_fd, strm_msg);
 			break;
 		case (2):
 			nick(client_fd, strm_msg);

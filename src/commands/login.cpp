@@ -34,3 +34,32 @@ void IRCServer::nick(int fd, std::istringstream &strm_msg)
 	this->_clients[fd]->setNickname(given_nick);
 	clientLog(fd, "Nickname has been set\n");
 }
+
+void IRCServer::user(int fd, std::istringstream &strm_msg)
+{
+	std::string given_username;
+	std::string given_hostname;
+	std::string given_servername;
+	std::string given_realname;
+
+	strm_msg >> given_username >> given_hostname >> given_servername; 
+    std::getline(strm_msg, given_realname);
+	if (!given_realname.empty() && given_realname[0] == ' ')
+		given_realname = given_realname.substr(1);
+	if (given_username.empty() || given_hostname.empty() || given_servername.empty() || given_realname.empty())
+		clientLog(fd, "Bad syntax\n");
+	else if (!check_realname_syntax(given_realname))
+		clientLog(fd, "Bad syntax\n");
+	if (!given_realname.empty() && given_realname[0] == ':')
+		given_realname = given_realname.substr(1);
+	this->_clients[fd]->setUsername(given_username);
+	this->_clients[fd]->setHostname(given_hostname);
+	this->_clients[fd]->setServername(given_servername);
+	this->_clients[fd]->setRealname(given_realname);
+	// std::cout << "4. after setting, username " << this->_clients[fd]->getUserData()[0] << std::endl;
+	// std::cout << "5. after setting, hostname " << this->_clients[fd]->getUserData()[1] << std::endl;
+	// std::cout << "6. after setting, servername " << this->_clients[fd]->getUserData()[2] << std::endl;
+	// std::cout << "7. after setting, realname " << this->_clients[fd]->getUserData()[3] << std::endl;
+	// the real name can have several words in it.
+	// tu dois bien t'assurer que le dernier (realname) commence par un : et peut contenir plusieurs mots 
+}

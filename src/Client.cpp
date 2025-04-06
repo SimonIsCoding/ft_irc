@@ -1,7 +1,11 @@
 #include "../include/Client.hpp"
 
-Client::Client(int socket) : socket_fd(socket), is_registered(false) {
+Client::Client(int socket) : socket_fd(socket),  _user_data(4), is_registered(false) {
 	this->_nickname = "0";
+	this->_user_data[0] = "username";
+	this->_user_data[1] = "hostname";
+	this->_user_data[2] = "servername";
+	this->_user_data[3] = "realname";
 	sendMessage("Welcome to the IRC server!\r\n");
 }
 

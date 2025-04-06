@@ -1,7 +1,6 @@
 #include "../include/Server.hpp"
 #include "../include/Client.hpp"
 
-
 IRCServer::IRCServer(int _port, std::string pass) : _port(_port), _password(pass) {
 	// Create socket
 	if ((_server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
@@ -57,7 +56,6 @@ void IRCServer::run() {
 
 	while (true) {
 		int	nb_events = epoll_wait(this->_epoll_fd, events, MAX_EVENTS, -1);
-		// std::cout << "hola\n";
 		if (nb_events == -1)
 		{
 			std::cerr << "epoll_wait failed\n";
@@ -75,8 +73,6 @@ void IRCServer::run() {
 				break;
 			}
 		}
-
-
 	}
 }
 
@@ -141,4 +137,14 @@ bool	IRCServer::checkEmpty(std::istringstream &content)
 	if (tmp.empty())
 		return (true);
 	return (false);
+}
+
+bool	IRCServer::check_realname_syntax(const std::string &content)
+{
+	if (content[0] != ':')
+		return (false);
+	for (size_t i = 1; i < content.size(); ++i)
+		if (!std::isalpha(content[i]) && content[i] != ' ')
+			return (false);
+	return (true);
 }
