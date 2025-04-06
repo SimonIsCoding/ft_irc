@@ -32,6 +32,10 @@ class IRCServer {
 		void removeClient(Client* client);
 		void parsing(int client_fd, std::istringstream &strm_msg);
 		bool checkEmpty(std::istringstream &content);
+		void clientLog(int fd, std::string message);
+
+		void pass(int fd, std::istringstream &strm_msg);
+		void nick(int fd, std::istringstream &strm_msg);
 
 	public:
 		IRCServer(int port, std::string password);

@@ -129,6 +129,10 @@ void IRCServer::removeClient(Client* client) {
 	}
 }
 
+void IRCServer::clientLog(int fd, std::string message){
+	send(fd, message.c_str(), message.length(), 0);
+}
+
 bool	IRCServer::checkEmpty(std::istringstream &content)
 {
 	std::string tmp;

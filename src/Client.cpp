@@ -1,6 +1,7 @@
 #include "../include/Client.hpp"
 
 Client::Client(int socket) : socket_fd(socket), is_registered(false) {
+	this->_nickname = "0";
 	sendMessage("Welcome to the IRC server!\r\n");
 }
 

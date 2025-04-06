@@ -13,18 +13,14 @@ void IRCServer::parsing(int client_fd, std::istringstream &strm_msg){
 	}
 	switch (i)
 	{
-	case (0):
-		std::string given_pass;
-
-		strm_msg >> given_pass;
-
-		if (!checkEmpty(strm_msg) || given_pass.empty())
-			send(client_fd, "Bad syntax\n", 11, 0);
-		else if (given_pass == this->_password){
-			send(client_fd, "Good password\n", 14, 0);
-			this->_clients[client_fd]->is_registered = true;
-		}else{
-			send(client_fd, "Bad password\n", 13, 0);
-		}
+		case (0):
+			pass(client_fd, strm_msg);
+			break;
+		case (1):
+			clientLog(client_fd, "This command is useless, why is it here anyway ?\n");
+			break;
+		case (2):
+			nick(client_fd, strm_msg);
+			break;
 	}
 }

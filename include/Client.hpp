@@ -11,8 +11,8 @@
 class Client {
 	private:
 		int socket_fd;
-		std::string nickname;
-		std::string username;
+		std::string _nickname;
+		std::string _username;
 
 		static const int BUFFER_SIZE = 1024;
 
@@ -22,10 +22,12 @@ class Client {
 		~Client();
 
 		int getSocket() const { return socket_fd; }
-		std::string getNickname() const { return nickname; }
+		std::string getNickname() const { return _nickname; }
+		void setNickname(const std::string nickname) { this->_nickname = nickname; }
 		bool isRegistered() const { return is_registered; }
 
 		void sendMessage(const std::string& message);
+
 		std::string receiveMessage();
 		void disconnect();
 };

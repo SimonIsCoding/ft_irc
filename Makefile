@@ -4,7 +4,7 @@ CXXFLAGS = -Wall -Wextra -Werror -std=c++98
 NAME = ircserv
 
 # Source files
-SRCS = $(wildcard src/*.cpp)
+SRCS = $(wildcard src/*.cpp) $(wildcard src/commands/*.cpp)
 OBJS = $(SRCS:.cpp=.o)
 
 # Default target
