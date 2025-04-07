@@ -13,4 +13,8 @@
 	- [X] Check if user is set
 	- [ ] Check if user is connected
 
+	-Channel:
+	- [X] JOIN: Check if channel already exists
+
+
 ## 2. Client

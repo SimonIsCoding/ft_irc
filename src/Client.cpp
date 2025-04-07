@@ -1,6 +1,6 @@
 #include "../include/Client.hpp"
 
-Client::Client(int socket) : socket_fd(socket),  _user_data(4), is_registered(false) {
+Client::Client(int socket) : _socket_fd(socket),  _user_data(4), is_registered(false) {
 	this->_nickname = "0";
 	this->_user_data[0] = "username";
 	this->_user_data[1] = "hostname";
@@ -14,14 +14,14 @@ Client::~Client() {
 }
 
 void Client::sendMessage(const std::string& message) {
-	if (send(socket_fd, message.c_str(), message.length(), 0) < 0) {
+	if (send(_socket_fd, message.c_str(), message.length(), 0) < 0) {
 		std::cerr << "Failed to send message to client" << std::endl;
 	}
 }
 
 std::string Client::receiveMessage() {
 	char buffer[BUFFER_SIZE] = {0};
-	int valread = read(socket_fd, buffer, BUFFER_SIZE);
+	int valread = read(_socket_fd, buffer, BUFFER_SIZE);
 
 	if (valread <= 0) {
 		return "";
@@ -31,8 +31,8 @@ std::string Client::receiveMessage() {
 }
 
 void Client::disconnect() {
-	if (socket_fd != -1) {
-		close(socket_fd);
-		socket_fd = -1;
+	if (_socket_fd != -1) {
+		close(_socket_fd);
+		_socket_fd = -1;
 	}
 }

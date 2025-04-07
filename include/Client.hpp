@@ -11,7 +11,7 @@
 
 class Client {
 	private:
-		int socket_fd;
+		int _socket_fd;
 		std::string _nickname;
 		std::string _username;
 		std::vector<std::string> _user_data;
@@ -23,7 +23,7 @@ class Client {
 		Client(int socket);
 		~Client();
 
-		int getSocket() const { return socket_fd; }
+		int getSocket() const { return _socket_fd; }
 		std::string getNickname() const { return _nickname; }
 		void setNickname(const std::string nickname) { this->_nickname = nickname; }
 		bool isRegistered() const { return is_registered; }

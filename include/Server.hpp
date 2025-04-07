@@ -18,6 +18,7 @@
 
 #define MAX_EVENTS	10
 #include "Client.hpp"
+#include "Channel.hpp"
 
 
 class IRCServer {
@@ -28,7 +29,9 @@ class IRCServer {
 		struct sockaddr_in address;
 		static const int BUFFER_SIZE = 1024;
 		std::map<int, Client*> _clients;
+		std::map<std::string, Channel*> _channels;
 		int _epoll_fd;
+
 		void handleNewConnection();
 		void handleClientMessage(int client_fd);
 		void removeClient(Client* client);
@@ -40,12 +43,16 @@ class IRCServer {
 		void pass(int fd, std::istringstream &strm_msg);
 		void nick(int fd, std::istringstream &strm_msg);
 		void user(int fd, std::istringstream &strm_msg);
+		void privmsg(int fd, std::istringstream &message);
+		void join(int fd, std::istringstream &strm_msg);
 
+
+		void createChannel(Client *creator, const std::string &name);
 	public:
 		IRCServer(int port, std::string password);
 		~IRCServer();
 		void run();
-		
+
 };
 
 #endif

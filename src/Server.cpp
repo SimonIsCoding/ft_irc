@@ -148,3 +148,17 @@ bool	IRCServer::check_realname_syntax(const std::string &content)
 			return (false);
 	return (true);
 }
+
+void IRCServer::createChannel(Client *creator, const std::string &name)
+{
+	Channel* newchannel = new Channel(name);
+
+	for (std::map<std::string, Channel*>::iterator it = _channels.begin(); it != _channels.end(); ++it)
+	{
+		if (it->second->getChannelName() == name)
+			return (clientLog(creator->getSocket(), "Channel already exists.\n"));
+	}
+	_channels.insert(std::make_pair(name, newchannel));
+	newchannel->addOperator(creator);
+	newchannel->addMember(creator);
+}
