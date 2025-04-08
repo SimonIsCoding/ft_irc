@@ -1,12 +1,12 @@
 #include "../include/Channel.hpp"
 
 Channel::Channel(std::string name)
-	: _name(name), _needpassword(false), _password("") {
+	: _name(name), _needpassword(false), _password(""), _admintopic(true), _topic("") {
 }
 
 
 Channel::Channel()
-	: _name(""), _needpassword(false), _password("") {
+	: _name(""), _needpassword(false), _password(""), _admintopic(true), _topic("") {
 }
 
 Channel::~Channel() {
@@ -24,10 +24,31 @@ void Channel::addOperator(Client *op){
 
 void Channel::addMember(Client *member){
 	_members.insert(std::make_pair(member->getSocket(), member));
-	std::cout << "User: " << member->getNickname() << " has created channel " << _name << std::endl;
 }
 
 const std::string Channel::getChannelName()
 {
 	return (this->_name);
+}
+
+const std::map<int, Client*> Channel::getMembers(){
+	return (this->_members);
+}
+
+const std::map<int, Client*> Channel::getOperators(){
+	return (this->_operators);
+}
+
+bool Channel::isOperator(int fd){
+	if (_operators.find(fd) == _operators.end())
+		return false;
+	return true;
+}
+
+void	Channel::deleteMember(int fd)
+{
+	if (_members.find(fd) != _members.end())
+		_members.erase(fd);
+	if (_operators.find(fd) != _operators.end())
+		_operators.erase(fd);
 }

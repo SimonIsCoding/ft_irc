@@ -126,6 +126,7 @@ void IRCServer::removeClient(Client* client) {
 }
 
 void IRCServer::clientLog(int fd, std::string message){
+	message = "[SERVER]: " + message;
 	send(fd, message.c_str(), message.length(), 0);
 }
 
@@ -151,14 +152,26 @@ bool	IRCServer::check_realname_syntax(const std::string &content)
 
 void IRCServer::createChannel(Client *creator, const std::string &name)
 {
+	// std::cout << "yo" << std::endl;
 	Channel* newchannel = new Channel(name);
+	// std::cout << "yo yo" << std::endl;
 
 	for (std::map<std::string, Channel*>::iterator it = _channels.begin(); it != _channels.end(); ++it)
 	{
-		if (it->second->getChannelName() == name)
+		if (it->first == name)
 			return (clientLog(creator->getSocket(), "Channel already exists.\n"));
 	}
 	_channels.insert(std::make_pair(name, newchannel));
 	newchannel->addOperator(creator);
 	newchannel->addMember(creator);
+}
+
+int	IRCServer::getFdByNickname(std::string &nickname){
+	for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it)
+	{
+		if (it->second->getNickname() == nickname){
+			return it->first;
+		}
+	}
+	return -1;
 }

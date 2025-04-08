@@ -11,6 +11,7 @@
 
 class Client {
 	private:
+		short int _status;
 		int _socket_fd;
 		std::string _nickname;
 		std::string _username;
@@ -19,14 +20,12 @@ class Client {
 		static const int BUFFER_SIZE = 1024;
 
 	public:
-		bool is_registered;
 		Client(int socket);
 		~Client();
 
 		int getSocket() const { return _socket_fd; }
 		std::string getNickname() const { return _nickname; }
 		void setNickname(const std::string nickname) { this->_nickname = nickname; }
-		bool isRegistered() const { return is_registered; }
 		const std::vector<std::string>& getUserData() const { return _user_data; }
 		void setUsername(const std::string username) { this->_user_data[0] = username; }
 		void setHostname(const std::string hostname) { this->_user_data[1] = hostname; }
@@ -34,9 +33,10 @@ class Client {
 		void setRealname(const std::string realname) { this->_user_data[3] = realname; }
 
 		void sendMessage(const std::string& message);
-
 		std::string receiveMessage();
 		void disconnect();
+		short int getStatus() const;
+		void increaseStatus();
 };
 
 #endif

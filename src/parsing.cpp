@@ -2,32 +2,53 @@
 #include "../include/Client.hpp"
 #include "../include/Channel.hpp"
 
-void IRCServer::parsing(int client_fd, std::istringstream &strm_msg){
+void IRCServer::log(int fd, std::istringstream &strm_msg)
+{
+	_clients[fd]->increaseStatus();
+	nick(fd, strm_msg);
+	_clients[fd]->increaseStatus();
+}
+
+void IRCServer::parsing(int fd, std::istringstream &strm_msg){
 	int i;
 	std::string command;
-	std::string commands[] = {"PASS", "USER", "NICK", "PRIVMSG", "JOIN"};
+	std::string commands[] = {"PASS", "USER", "NICK", "PRIVMSG", "JOIN", "KICK", "TOPIC"};
 	strm_msg >> command;
 
-	for (i = 0 ; i < 5 ; i++){ // 3 is the len of commands[]
+	int len = sizeof(commands) / sizeof(commands[0]);
+	if (command == "l")
+		return log(fd, strm_msg);
+	for (i = 0 ; i < len ; i++){
 		if (commands[i] == command)
 			break;
 	}
+	if (i > 2 && _clients[fd]->getStatus() < 3)
+		return (clientLog(fd, "You must register first\n"));
 	switch (i)
 	{
 		case (0):
-			pass(client_fd, strm_msg);
+			pass(fd, strm_msg);
 			break;
 		case (1):
-			user(client_fd, strm_msg);
+			user(fd, strm_msg);
 			break;
 		case (2):
-			nick(client_fd, strm_msg);
+			nick(fd, strm_msg);
 			break;
 		case (3):
-			privmsg(client_fd, strm_msg);
+			privmsg(fd, strm_msg);
 			break;
 		case (4):
-			join(client_fd, strm_msg);
+			join(fd, strm_msg);
 			break;
+		case (5):
+			kick(fd, strm_msg);
+			break;
+		case (6):
+			topic(fd, strm_msg);
+			break;
+		default:
+			clientLog(fd, "Bad input\n");
 	}
 }
+

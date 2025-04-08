@@ -1,7 +1,8 @@
 #include "../include/Client.hpp"
 
-Client::Client(int socket) : _socket_fd(socket),  _user_data(4), is_registered(false) {
+Client::Client(int socket) : _socket_fd(socket),  _user_data(4) {
 	this->_nickname = "0";
+	this->_status = 0;
 	this->_user_data[0] = "username";
 	this->_user_data[1] = "hostname";
 	this->_user_data[2] = "servername";
@@ -35,4 +36,12 @@ void Client::disconnect() {
 		close(_socket_fd);
 		_socket_fd = -1;
 	}
+}
+
+short int	Client::getStatus(void) const{
+	return _status;
+}
+
+void Client::increaseStatus(void){
+	_status++;
 }

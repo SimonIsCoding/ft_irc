@@ -39,12 +39,22 @@ class IRCServer {
 		bool checkEmpty(std::istringstream &content);
 		bool check_realname_syntax(const std::string &content);
 		void clientLog(int fd, std::string message);
+		bool doChannelExist(std::string name);
+		int	getFdByNickname(std::string &nickname);
+
 
 		void pass(int fd, std::istringstream &strm_msg);
 		void nick(int fd, std::istringstream &strm_msg);
 		void user(int fd, std::istringstream &strm_msg);
 		void privmsg(int fd, std::istringstream &message);
+		void sendChannel(int fd, std::string &channelname, std::string &content);
 		void join(int fd, std::istringstream &strm_msg);
+		void kick(int fd, std::istringstream &strm_msg);
+		void topic(int fd, std::istringstream &strm_msg);
+
+		// fonction interdite:
+		void log(int fd, std::istringstream &strm_msg);
+
 
 
 		void createChannel(Client *creator, const std::string &name);
