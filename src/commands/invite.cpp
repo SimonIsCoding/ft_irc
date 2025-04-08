@@ -1,0 +1,30 @@
+#include "../../include/Server.hpp"
+#include "../../include/Client.hpp"
+#include "../../include/Channel.hpp"
+
+void IRCServer::invite(int fd, std::istringstream &strm_msg)
+{
+	std::string channelname;
+	std::string nickname;
+	std::string reason;
+	int dest_fd;
+
+	strm_msg >> nickname  >> channelname;
+	if (!checkEmpty(strm_msg) || nickname.empty() || channelname.empty() || (!reason.empty() && reason[0] != ':'))
+		return clientLog(fd, "Bad syntax\n");
+	if (!doChannelExist(channelname))
+		return clientLog(fd, "Channel does not exist\n");
+	dest_fd = getFdByNickname(nickname);
+	if (!_channels[channelname]->isOperator(fd))
+		return (clientLog(fd, "You are not operator of this channel.\n"));
+	if (dest_fd >  0){
+		if (_channels[channelname]->isMember(dest_fd))
+			return (clientLog(fd, _clients[dest_fd]->getNickname() + " is already in the channel " + channelname + ".\n"));
+		if (_channels[channelname]->isInvited(dest_fd))
+			return (clientLog(fd, _clients[dest_fd]->getNickname() + " is already invited to this channel.\n"));
+		_channels[channelname]->inviteUser(_clients[dest_fd]);
+		return (clientLog(fd, "User " + _clients[dest_fd]->getNickname() + " has been invited to channel " + channelname + ".\n"));
+	}else{
+		return (clientLog(fd, "User not found.\n"));
+	}
+}

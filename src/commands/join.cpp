@@ -23,10 +23,17 @@ void IRCServer::join(int fd, std::istringstream &strm_msg)
 	if (channelname.length() < 2)
 		return clientLog(fd, "Channel's name must be at least 2 chars long\n");
 	if (doChannelExist(channelname)){
-		this->_channels[channelname]->addMember(this->_clients[fd]);
-		return (clientLog(fd, "You have joined channel " + channelname + ".\n"));
-	}
-	else{
+		if (_channels[channelname]->isMember(fd))
+			return (clientLog(fd, "You already are part of this channel.\n"));
+		std::cout << "YOOOO" << std::endl;
+		if ((_channels[channelname]->getInviteRights() && _channels[channelname]->isInvited(fd)) || !_channels[channelname]->getInviteRights()){
+			this->_channels[channelname]->addMember(this->_clients[fd]);
+			if (_channels[channelname]->getInviteRights())
+				_channels[channelname]->deleteInvitation(fd);
+			return (clientLog(fd, "You have joined channel " + channelname + ".\n"));
+		}
+		return (clientLog(fd, "You are not invited to join this channel.\n"));
+	}else{
 		createChannel(_clients[fd], channelname);
 		return (clientLog(fd, "You have created and joined channel " + channelname + ".\n"));
 	}

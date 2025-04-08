@@ -12,7 +12,7 @@ void IRCServer::log(int fd, std::istringstream &strm_msg)
 void IRCServer::parsing(int fd, std::istringstream &strm_msg){
 	int i;
 	std::string command;
-	std::string commands[] = {"PASS", "USER", "NICK", "PRIVMSG", "JOIN", "KICK", "TOPIC"};
+	std::string commands[] = {"PASS", "USER", "NICK", "PRIVMSG", "JOIN", "KICK", "TOPIC", "INVITE"};
 	strm_msg >> command;
 
 	int len = sizeof(commands) / sizeof(commands[0]);
@@ -46,6 +46,9 @@ void IRCServer::parsing(int fd, std::istringstream &strm_msg){
 			break;
 		case (6):
 			topic(fd, strm_msg);
+			break;
+		case (7):
+			invite(fd, strm_msg);
 			break;
 		default:
 			clientLog(fd, "Bad input\n");

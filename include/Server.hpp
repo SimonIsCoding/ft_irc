@@ -41,6 +41,7 @@ class IRCServer {
 		void clientLog(int fd, std::string message);
 		bool doChannelExist(std::string name);
 		int	getFdByNickname(std::string &nickname);
+		void invite(int fd, std::istringstream &strm_msg);
 
 
 		void pass(int fd, std::istringstream &strm_msg);
