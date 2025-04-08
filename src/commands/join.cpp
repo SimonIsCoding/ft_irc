@@ -48,6 +48,7 @@ void IRCServer::kick(int fd, std::istringstream &strm_msg){
 	reason = ltrim(reason);
 	if (!checkEmpty(strm_msg) || nickname.empty() || channelname.empty() || (!reason.empty() && reason[0] != ':'))
 		return clientLog(fd, "Bad syntax\n");
+	reason.erase(0, 1);
 	if (!doChannelExist(channelname))
 		return clientLog(fd, "Channel does not exist\n");
 	dest_fd = getFdByNickname(nickname);
@@ -60,8 +61,8 @@ void IRCServer::kick(int fd, std::istringstream &strm_msg){
 			return (clientLog(dest_fd, "You have been kicked from channel " + channelname + ".\n"));
 		}
 		else{
-			clientLog(fd, _clients[dest_fd]->getNickname() + " has been kicked from channel " + channelname + "for reason" + reason + ".\n");
-			return (clientLog(dest_fd, "You have been kicked from channel " + channelname + " for reason" + reason + ".\n"));
+			clientLog(fd, _clients[dest_fd]->getNickname() + " has been kicked from channel " + channelname + " for reason: " + reason + ".\n");
+			return (clientLog(dest_fd, "You have been kicked from channel " + channelname + " for reason: " + reason + ".\n"));
 		}
 	}
 	else
