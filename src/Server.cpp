@@ -55,10 +55,17 @@ Server::~Server() {
 	close(_epoll_fd);
 }
 
+void signal_handler(int signal) {
+	(void) signal;
+	throw std::logic_error("Server shutdown");
+}
+
 void Server::run() {
 	std::cout << "IRC Server running on port " << _port << std::endl;
 	struct epoll_event events[MAX_EVENTS];
 
+	std::signal(SIGINT, signal_handler);
+    std::signal(SIGTERM, signal_handler);
 	struct epoll_event ev;
 	ev.events = EPOLLIN;
 	ev.data.fd = STDIN_FILENO;
@@ -90,7 +97,7 @@ void Server::run() {
 	}
 }
 
-void Server::ServerExit(void){
+void Server::ServerExit(){
 	std::string stdin_content;
 
 	getline(std::cin, stdin_content);
