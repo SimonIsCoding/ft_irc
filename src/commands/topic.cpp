@@ -2,7 +2,7 @@
 #include "../../include/Client.hpp"
 #include "../../include/Channel.hpp"
 
-void IRCServer::topic(int fd, std::istringstream &strm_msg){
+void Server::topic(int fd, std::istringstream &strm_msg){
 	std::string channelname;
 	std::string newtopic;
 

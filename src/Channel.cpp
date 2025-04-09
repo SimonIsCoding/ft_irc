@@ -1,12 +1,12 @@
 #include "../include/Channel.hpp"
 
 Channel::Channel(std::string name)
-	: _name(name), _needpassword(false), _password(""), _admintopic(true), _topic(""), _inviteOnly(true) {
+	: _name(name), _needpassword(false), _password(""), _admintopic(false), _topic(""), _inviteOnly(false), _limit(10000) {
 }
 
 
 Channel::Channel()
-	: _name(""), _needpassword(false), _password(""), _admintopic(true), _topic("") {
+	: _name(""), _needpassword(false), _password(""), _admintopic(false), _topic(""), _inviteOnly(false), _limit(10000) {
 }
 
 Channel::~Channel() {
@@ -21,6 +21,12 @@ Channel::~Channel() {
 void Channel::addOperator(Client *op){
 	_operators.insert(std::make_pair(op->getSocket(), op));
 }
+
+void Channel::rmOperator(int fd){
+	if (_members.find(fd) != _members.end())
+		_operators.erase(fd);
+}
+
 
 void Channel::addMember(Client *member){
 	_members.insert(std::make_pair(member->getSocket(), member));
@@ -55,16 +61,12 @@ void	Channel::deleteMember(int fd)
 
 void Channel::inviteUser(Client *invited)
 {
-	std::cout << invited->getNickname() << " a été invité" << std::endl;
 	_invited.insert(std::make_pair(invited->getSocket(), invited));
-	std::cout << this->isInvited(invited->getSocket()) << std::endl;
 }
 
 void Channel::deleteInvitation(int fd){
-	std::cout << "1" << std::endl;
 	if (_invited.find(fd) != _invited.end())
 		_invited.erase(fd);
-	std::cout << "2" << std::endl;
 }
 
 bool Channel::isInvited(int fd){

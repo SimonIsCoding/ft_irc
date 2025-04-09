@@ -1,7 +1,7 @@
 #include "../../include/Server.hpp"
 #include "../../include/Client.hpp"
 
-void IRCServer::pass(int fd, std::istringstream &strm_msg)
+void Server::pass(int fd, std::istringstream &strm_msg)
 {
 	if (_clients[fd]->getStatus() != 0)
 		return clientLog(fd, "Password already set\n");
@@ -19,7 +19,7 @@ void IRCServer::pass(int fd, std::istringstream &strm_msg)
 	}
 }
 
-void IRCServer::nick(int fd, std::istringstream &strm_msg)
+void Server::nick(int fd, std::istringstream &strm_msg)
 {
 	if (_clients[fd]->getStatus() > 1)
 		return clientLog(fd, "Nick already set\n");
@@ -42,7 +42,7 @@ void IRCServer::nick(int fd, std::istringstream &strm_msg)
 	clientLog(fd, "Nickname has been set\n");
 }
 
-void IRCServer::user(int fd, std::istringstream &strm_msg)
+void Server::user(int fd, std::istringstream &strm_msg)
 {
 	if (_clients[fd]->getStatus() == 0)
 		return clientLog(fd, "You must type the password first\n");

@@ -23,6 +23,8 @@ class Channel {
 		std::string _topic;
 		bool		_inviteOnly;
 
+		int 		_limit;
+
 		std::map<int, Client*> _members;
 		std::map<int, Client*> _operators;
 		std::map<int, Client*> _invited;
@@ -47,8 +49,16 @@ class Channel {
 
 		bool getInviteRights(void) {return _inviteOnly;};
 		void setInviteRights(bool rights) {_inviteOnly = rights;};
+		void rmOperator(int fd);
 
+		void setPassword(std::string pass) {_password = pass;};
+		std::string getPassword(void) {return _password;};
+		void setPassNeed(bool right) {_needpassword = right;};
+		bool getPassNeed(void) { return _needpassword;};
 		void inviteUser(Client *invited);
+
+		void setUserLimit(int limit) { _limit = limit; };
+		int getUserLimit(void) {return _limit; };
 
 		Channel();
 		Channel(std::string name);

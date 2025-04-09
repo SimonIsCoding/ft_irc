@@ -19,7 +19,7 @@ int main(int argc, char* argv[]) {
 			throw std::runtime_error("Password cannot be empty");
 		}
 
-		IRCServer server(port, password);
+		Server server(port, password);
 		server.run();
 	} catch (const std::exception& e) {
 		std::cerr << "Error: " << e.what() << std::endl;

@@ -2,7 +2,7 @@
 #include "../../include/Client.hpp"
 #include "../../include/Channel.hpp"
 
-bool IRCServer::doChannelExist(std::string name){
+bool Server::doChannelExist(std::string name){
 	for (std::map<std::string, Channel*>::iterator it = _channels.begin(); it != _channels.end(); ++it)
 	{
 		if (it->first == name)
@@ -11,21 +11,32 @@ bool IRCServer::doChannelExist(std::string name){
 	return false;
 }
 
-void IRCServer::join(int fd, std::istringstream &strm_msg)
+void Server::join(int fd, std::istringstream &strm_msg)
 {
 	std::string channelname;
+	std::string password;
 
 	strm_msg >> channelname;
+	if (doChannelExist(channelname) && _channels[channelname]->getPassNeed())
+	{
+		strm_msg >> password;
+		if (password.empty())
+			return (clientLog(fd, "A password is needed to get inside this channel.\n"));
+		if (_channels[channelname]->getPassword() != password)
+			return (clientLog(fd, "Bad password.\n"));
+	}
 	if (!checkEmpty(strm_msg) || channelname.empty())
 		return (clientLog(fd, "Bad syntax\n"));
 	if (channelname[0] != '#' && channelname[0] != '&')
 		return (clientLog(fd, "Channel's name must start with # or &.\n"));
 	if (channelname.length() < 2)
 		return clientLog(fd, "Channel's name must be at least 2 chars long\n");
-	if (doChannelExist(channelname)){
+	if (doChannelExist(channelname))
+	{
 		if (_channels[channelname]->isMember(fd))
 			return (clientLog(fd, "You already are part of this channel.\n"));
-		std::cout << "YOOOO" << std::endl;
+		if (_channels[channelname]->getUserLimit() <= (int)_channels[channelname]->getMembers().size())
+			return (clientLog(fd, "User limit for this channel has been reached.\n"));
 		if ((_channels[channelname]->getInviteRights() && _channels[channelname]->isInvited(fd)) || !_channels[channelname]->getInviteRights()){
 			this->_channels[channelname]->addMember(this->_clients[fd]);
 			if (_channels[channelname]->getInviteRights())
@@ -33,7 +44,9 @@ void IRCServer::join(int fd, std::istringstream &strm_msg)
 			return (clientLog(fd, "You have joined channel " + channelname + ".\n"));
 		}
 		return (clientLog(fd, "You are not invited to join this channel.\n"));
-	}else{
+	}
+	else
+	{
 		createChannel(_clients[fd], channelname);
 		return (clientLog(fd, "You have created and joined channel " + channelname + ".\n"));
 	}
@@ -44,7 +57,7 @@ std::string ltrim(const std::string& str) {
 	return (start == std::string::npos) ? "" : str.substr(start);
 }
 
-void IRCServer::kick(int fd, std::istringstream &strm_msg){
+void Server::kick(int fd, std::istringstream &strm_msg){
 	std::string channelname;
 	std::string nickname;
 	std::string reason;

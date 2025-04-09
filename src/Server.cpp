@@ -1,7 +1,7 @@
 #include "../include/Server.hpp"
 #include "../include/Client.hpp"
 
-IRCServer::IRCServer(int _port, std::string pass) : _port(_port), _password(pass) {
+Server::Server(int _port, std::string pass) : _port(_port), _password(pass) {
 	// Create socket
 	if ((_server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
 		throw std::runtime_error("Socket creation failed");
@@ -35,25 +35,37 @@ IRCServer::IRCServer(int _port, std::string pass) : _port(_port), _password(pass
 	struct epoll_event ev;
 	ev.events = EPOLLIN;
 	ev.data.fd = _server_fd;
+	fcntl(this->_server_fd, F_SETFL, O_NONBLOCK);
 	if (epoll_ctl(this->_epoll_fd, EPOLL_CTL_ADD, this->_server_fd, &ev) == -1) {
 		throw std::runtime_error("Failed to add server socket to epoll");
 	}
 }
 
-IRCServer::~IRCServer() {
+Server::~Server() {
 	// Clean up all _clients
 	for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
 		delete (*it).second;
 	}
+	for (std::map<std::string, Channel*>::iterator it = _channels.begin(); it != _channels.end(); ++it) {
+		delete (*it).second;
+	}
 	_clients.clear();
+	_channels.clear();
 	close(_server_fd);
 	close(_epoll_fd);
 }
 
-void IRCServer::run() {
+void Server::run() {
 	std::cout << "IRC Server running on port " << _port << std::endl;
 	struct epoll_event events[MAX_EVENTS];
 
+	struct epoll_event ev;
+	ev.events = EPOLLIN;
+	ev.data.fd = STDIN_FILENO;
+	fcntl(STDIN_FILENO, F_SETFL, O_NONBLOCK);
+	if (epoll_ctl(this->_epoll_fd, EPOLL_CTL_ADD, STDIN_FILENO, &ev) == -1) {
+		throw std::runtime_error("Failed to add standard input to epoll");
+	}
 	while (true) {
 		int	nb_events = epoll_wait(this->_epoll_fd, events, MAX_EVENTS, -1);
 		if (nb_events == -1)
@@ -63,8 +75,10 @@ void IRCServer::run() {
 		}
 		for (int i = 0; i < nb_events; i++)
 		{
-			if (events[i].data.fd == STDIN_FILENO)
-				throw std::runtime_error("Exited program");
+			if (events[i].data.fd == STDIN_FILENO){
+				ServerExit();
+				break;
+			}
 			else if (events[i].data.fd == this->_server_fd)//receive new connection
 				handleNewConnection();
 			else
@@ -76,7 +90,15 @@ void IRCServer::run() {
 	}
 }
 
-void IRCServer::handleNewConnection() {
+void Server::ServerExit(void){
+	std::string stdin_content;
+
+	getline(std::cin, stdin_content);
+	if (stdin_content == "exit")
+		throw std::logic_error("Server shutdown");
+}
+
+void Server::handleNewConnection() {
 	int client_fd;
 	int addrlen = sizeof(address);
 
@@ -88,7 +110,6 @@ void IRCServer::handleNewConnection() {
 
 	// Add new client
 	Client* new_client = new Client(client_fd);
-	std::cout << "new allocation made\n";
 	_clients.insert(std::make_pair(client_fd, new_client));
 
 	struct epoll_event ev;
@@ -102,35 +123,42 @@ void IRCServer::handleNewConnection() {
 	std::cout << "New client connected. Total _clients: " << _clients.size() << std::endl;
 }
 
-void IRCServer::handleClientMessage(int client_fd) {
+void Server::handleClientMessage(int client_fd) {
 	std::string message = _clients[client_fd]->receiveMessage();
 	if (message.empty()) {
 		std::cout << "Client disconnected" << std::endl;
-		removeClient(_clients[client_fd]);
+		removeClient(client_fd);
 		return;
 	}
 	std::istringstream strm_msg(message);
 	parsing(client_fd, strm_msg);
 }
 
-void IRCServer::removeClient(Client* client) {
-	epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, client->getSocket(), NULL);
+void Server::removeClient(int fd) {
+	epoll_ctl(_epoll_fd, EPOLL_CTL_DEL, _clients[fd]->getSocket(), NULL);
 
 	for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
-		if (it->second == client) {
-			_clients.erase(it);
-			delete (*it).second;
+		if (it->first == fd) {
+			delete it->second;
+			_clients.erase(fd);
 			break;
 		}
 	}
+	for (std::map<std::string, Channel*>::iterator it = _channels.begin(); it != _channels.end(); ++it)
+	{
+		if (it->second->isMember(fd))
+			it->second->deleteMember(fd);
+		if (it->second->isOperator(fd))
+			it->second->rmOperator(fd);
+	}
 }
 
-void IRCServer::clientLog(int fd, std::string message){
+void Server::clientLog(int fd, std::string message){
 	message = "[SERVER]: " + message;
 	send(fd, message.c_str(), message.length(), 0);
 }
 
-bool	IRCServer::checkEmpty(std::istringstream &content)
+bool	Server::checkEmpty(std::istringstream &content)
 {
 	std::string tmp;
 
@@ -140,7 +168,7 @@ bool	IRCServer::checkEmpty(std::istringstream &content)
 	return (false);
 }
 
-bool	IRCServer::check_realname_syntax(const std::string &content)
+bool	Server::check_realname_syntax(const std::string &content)
 {
 	if (content[0] != ':')
 		return (false);
@@ -150,11 +178,9 @@ bool	IRCServer::check_realname_syntax(const std::string &content)
 	return (true);
 }
 
-void IRCServer::createChannel(Client *creator, const std::string &name)
+void Server::createChannel(Client *creator, const std::string &name)
 {
-	// std::cout << "yo" << std::endl;
 	Channel* newchannel = new Channel(name);
-	// std::cout << "yo yo" << std::endl;
 
 	for (std::map<std::string, Channel*>::iterator it = _channels.begin(); it != _channels.end(); ++it)
 	{
@@ -166,7 +192,7 @@ void IRCServer::createChannel(Client *creator, const std::string &name)
 	newchannel->addMember(creator);
 }
 
-int	IRCServer::getFdByNickname(std::string &nickname){
+int	Server::getFdByNickname(std::string &nickname){
 	for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it)
 	{
 		if (it->second->getNickname() == nickname){

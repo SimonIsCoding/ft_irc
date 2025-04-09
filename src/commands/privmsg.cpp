@@ -1,7 +1,7 @@
 #include "../../include/Server.hpp"
 #include "../../include/Client.hpp"
 
-void IRCServer::privmsg(int fd, std::istringstream &message)
+void Server::privmsg(int fd, std::istringstream &message)
 {
 	std::string nickname;
 	std::string content;
@@ -24,7 +24,7 @@ void IRCServer::privmsg(int fd, std::istringstream &message)
 		clientLog(fd, "User not found.\n");
 }
 
-void IRCServer::sendChannel(int fd, std::string &channelname, std::string &content){
+void Server::sendChannel(int fd, std::string &channelname, std::string &content){
 	if (!doChannelExist(channelname))
 		return clientLog(fd, "Channel do not exist.\n");
 	std::map<int, Client*> members = _channels[channelname]->getMembers();

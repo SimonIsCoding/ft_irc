@@ -2,17 +2,17 @@
 #include "../include/Client.hpp"
 #include "../include/Channel.hpp"
 
-void IRCServer::log(int fd, std::istringstream &strm_msg)
+void Server::log(int fd, std::istringstream &strm_msg)
 {
 	_clients[fd]->increaseStatus();
 	nick(fd, strm_msg);
 	_clients[fd]->increaseStatus();
 }
 
-void IRCServer::parsing(int fd, std::istringstream &strm_msg){
+void Server::parsing(int fd, std::istringstream &strm_msg){
 	int i;
 	std::string command;
-	std::string commands[] = {"PASS", "USER", "NICK", "PRIVMSG", "JOIN", "KICK", "TOPIC", "INVITE"};
+	std::string commands[] = {"PASS", "USER", "NICK", "PRIVMSG", "JOIN", "KICK", "TOPIC", "INVITE", "MODE"};
 	strm_msg >> command;
 
 	int len = sizeof(commands) / sizeof(commands[0]);
@@ -49,6 +49,9 @@ void IRCServer::parsing(int fd, std::istringstream &strm_msg){
 			break;
 		case (7):
 			invite(fd, strm_msg);
+			break;
+		case (8):
+			mode(fd, strm_msg);
 			break;
 		default:
 			clientLog(fd, "Bad input\n");

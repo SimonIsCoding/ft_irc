@@ -2,7 +2,7 @@
 #include "../../include/Client.hpp"
 #include "../../include/Channel.hpp"
 
-void IRCServer::invite(int fd, std::istringstream &strm_msg)
+void Server::invite(int fd, std::istringstream &strm_msg)
 {
 	std::string channelname;
 	std::string nickname;
@@ -23,6 +23,7 @@ void IRCServer::invite(int fd, std::istringstream &strm_msg)
 		if (_channels[channelname]->isInvited(dest_fd))
 			return (clientLog(fd, _clients[dest_fd]->getNickname() + " is already invited to this channel.\n"));
 		_channels[channelname]->inviteUser(_clients[dest_fd]);
+		clientLog(dest_fd, "You have been invted to join channel " + channelname + ".\n");
 		return (clientLog(fd, "User " + _clients[dest_fd]->getNickname() + " has been invited to channel " + channelname + ".\n"));
 	}else{
 		return (clientLog(fd, "User not found.\n"));

@@ -9,11 +9,13 @@
 #include <unistd.h>
 #include <vector>
 #include <iostream>
+#include <cstddef>
 #include <sys/epoll.h>
 #include <map>
 #include <sstream>
 #include <algorithm>
 #include <cctype>
+#include <fcntl.h>
 
 
 #define MAX_EVENTS	10
@@ -21,7 +23,7 @@
 #include "Channel.hpp"
 
 
-class IRCServer {
+class Server {
 	private:
 		int _server_fd;
 		int _port;
@@ -34,16 +36,16 @@ class IRCServer {
 
 		void handleNewConnection();
 		void handleClientMessage(int client_fd);
-		void removeClient(Client* client);
+		void removeClient(int fd);
 		void parsing(int client_fd, std::istringstream &strm_msg);
 		bool checkEmpty(std::istringstream &content);
 		bool check_realname_syntax(const std::string &content);
 		void clientLog(int fd, std::string message);
 		bool doChannelExist(std::string name);
 		int	getFdByNickname(std::string &nickname);
+		void ServerExit(void);
+
 		void invite(int fd, std::istringstream &strm_msg);
-
-
 		void pass(int fd, std::istringstream &strm_msg);
 		void nick(int fd, std::istringstream &strm_msg);
 		void user(int fd, std::istringstream &strm_msg);
@@ -52,6 +54,13 @@ class IRCServer {
 		void join(int fd, std::istringstream &strm_msg);
 		void kick(int fd, std::istringstream &strm_msg);
 		void topic(int fd, std::istringstream &strm_msg);
+		void mode(int fd, std::istringstream &strm_msg);
+		void topic_mode(int fd, bool addition, std::string channelname);
+		void invite_mode(int fd, bool addition, std::string channelname);
+		void password_mode(int fd, bool addition, std::string channelname, std::string password);
+		void privilege_mode(int fd, bool addition, std::string channelname, std::string privilege);
+		void limit_mode(int fd, bool addition, std::string channelname, std::string limit);
+
 
 		// fonction interdite:
 		void log(int fd, std::istringstream &strm_msg);
@@ -60,8 +69,8 @@ class IRCServer {
 
 		void createChannel(Client *creator, const std::string &name);
 	public:
-		IRCServer(int port, std::string password);
-		~IRCServer();
+		Server(int port, std::string password);
+		~Server();
 		void run();
 
 };
