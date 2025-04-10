@@ -45,7 +45,7 @@ class Server {
 		void clientLog(int fd, std::string message);
 		bool doChannelExist(std::string name);
 		int	getFdByNickname(std::string &nickname);
-		void ServerExit();
+		void ServerCommand();
 
 		void invite(int fd, std::istringstream &strm_msg);
 		void pass(int fd, std::istringstream &strm_msg);
