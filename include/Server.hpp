@@ -18,11 +18,12 @@
 #include <fcntl.h>
 #include <csignal>
 #include <cstdlib>
-#include <fstream>
+
 
 #define MAX_EVENTS	10
 #include "Client.hpp"
 #include "Channel.hpp"
+
 
 class Server {
 	private:
@@ -44,7 +45,7 @@ class Server {
 		void clientLog(int fd, std::string message);
 		bool doChannelExist(std::string name);
 		int	getFdByNickname(std::string &nickname);
-		void ServerCommand();
+		void ServerExit();
 
 		void invite(int fd, std::istringstream &strm_msg);
 		void pass(int fd, std::istringstream &strm_msg);
@@ -63,10 +64,10 @@ class Server {
 		void limit_mode(int fd, bool addition, std::string channelname, std::string limit);
 		void bet(int fd, std::istringstream &strm_msg);
 		void createChannel(Client *creator, const std::string &name);
-		void dcc(int fd, std::istringstream &strm_msg);
 
 		// fonction interdite:
 		void log(int fd, std::istringstream &strm_msg);
+
 
 		// Dealer func
 		void dealerMessage(int fd);
@@ -75,6 +76,7 @@ class Server {
 		Server(int port, std::string password);
 		~Server();
 		void run();
+
 };
 
 #endif

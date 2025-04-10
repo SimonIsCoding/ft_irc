@@ -84,19 +84,13 @@ void Server::run() {
 		for (int i = 0; i < nb_events; i++)
 		{
 			if (events[i].data.fd == STDIN_FILENO){
-				ServerCommand();
+				ServerExit();
 				break;
 			}
 			else if (events[i].data.fd == this->_server_fd)//receive new connection
 				handleNewConnection();
 			else
 			{
-				// Check if this is a DCC transfer
-				for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
-					if (it->second->isDCCActive()) {
-						it->second->handleDCCTransfer();
-					}
-				}
 				handleClientMessage(events[i].data.fd);
 				break;
 			}
@@ -104,32 +98,13 @@ void Server::run() {
 	}
 }
 
-
-void Server::ServerCommand() {
+void Server::ServerExit(){
 	std::string stdin_content;
 
 	getline(std::cin, stdin_content);
-	if (stdin_content.empty())
-		return ;
 	if (stdin_content == "exit")
 		throw std::logic_error("Server shutdown");
-	if (stdin_content[0] == ':') 
-	{
-		std::string name = stdin_content.substr(1, stdin_content.find(' ') - 1);
-		std::string content = stdin_content.substr(stdin_content.find(' ') + 1);
-		if (name[0] == ':')
-			name = name.substr(1);
-		int client_fd = getFdByNickname(name);
-		if (client_fd == -1) {
-			std::cout << "User " + name + " not found." << std::endl;
-			return ;
-		}
-		std::istringstream strm_msg(content);
-		parsing(client_fd, strm_msg);
-	}
-	std::cout << "Command " << stdin_content << " not known."<< std::endl;
 }
-
 
 void Server::handleNewConnection() {
 	int client_fd;
