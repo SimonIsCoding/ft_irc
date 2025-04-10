@@ -91,6 +91,12 @@ void Server::run() {
 				handleNewConnection();
 			else
 			{
+				// Check if this is a DCC transfer
+				for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
+					if (it->second->isDCCActive()) {
+						it->second->handleDCCTransfer();
+					}
+				}
 				handleClientMessage(events[i].data.fd);
 				break;
 			}

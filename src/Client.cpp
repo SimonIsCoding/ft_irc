@@ -1,4 +1,9 @@
 #include "../include/Client.hpp"
+#include <sys/types.h>
+#include <sys/socket.h>
+#include <netinet/in.h>
+#include <arpa/inet.h>
+#include <fcntl.h>
 
 Client::Client(int socket) : _socket_fd(socket),  _user_data(4) {
 	this->_nickname = "0";
@@ -8,10 +13,14 @@ Client::Client(int socket) : _socket_fd(socket),  _user_data(4) {
 	this->_user_data[1] = "hostname";
 	this->_user_data[2] = "servername";
 	this->_user_data[3] = "realname";
+	this->_dcc_active = false;
+	this->_dcc_socket = -1;
+	this->_dcc_bytes_sent = 0;
 	sendMessage("Welcome to the IRC server!\r\n");
 }
 
 Client::~Client() {
+	cancelDCCTransfer();
 	disconnect();
 }
 
@@ -45,4 +54,110 @@ short int	Client::getStatus(void) const{
 
 void Client::increaseStatus(void){
 	_status++;
+}
+
+bool Client::startDCCSend(const std::string& filename, const std::string& ip, int port, std::streamsize file_size) {
+	if (_dcc_active) {
+		return false;
+	}
+
+	_dcc_socket = socket(AF_INET, SOCK_STREAM, 0);
+	if (_dcc_socket < 0) {
+		return false;
+	}
+
+	struct sockaddr_in addr;
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(port);
+	addr.sin_addr.s_addr = inet_addr(ip.c_str());
+
+	if (connect(_dcc_socket, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
+		close(_dcc_socket);
+		_dcc_socket = -1;
+		return false;
+	}
+
+	_dcc_filename = filename;
+	_dcc_file_size = file_size;
+	_dcc_bytes_sent = 0;
+	_dcc_active = true;
+
+	return true;
+}
+
+bool Client::startDCCReceive(const std::string& filename, const std::string& ip, int port, std::streamsize file_size) {
+	if (_dcc_active) {
+		return false;
+	}
+
+	_dcc_socket = socket(AF_INET, SOCK_STREAM, 0);
+	if (_dcc_socket < 0) {
+		return false;
+	}
+
+	struct sockaddr_in addr;
+	addr.sin_family = AF_INET;
+	addr.sin_port = htons(port);
+	addr.sin_addr.s_addr = inet_addr(ip.c_str());
+
+	if (connect(_dcc_socket, (struct sockaddr*)&addr, sizeof(addr)) < 0) {
+		close(_dcc_socket);
+		_dcc_socket = -1;
+		return false;
+	}
+
+	_dcc_filename = filename;
+	_dcc_file_size = file_size;
+	_dcc_bytes_sent = 0;
+	_dcc_active = true;
+
+	_dcc_file.open(filename.c_str(), std::ios::binary | std::ios::out);
+	if (!_dcc_file.is_open()) {
+		cancelDCCTransfer();
+		return false;
+	}
+
+	return true;
+}
+
+void Client::handleDCCTransfer() {
+	if (!_dcc_active || _dcc_socket < 0) {
+		return;
+	}
+
+	char buffer[BUFFER_SIZE];
+	int bytes_read = recv(_dcc_socket, buffer, BUFFER_SIZE, 0);
+
+	if (bytes_read <= 0) {
+		cancelDCCTransfer();
+		return;
+	}
+
+	if (_dcc_file.is_open()) {
+		_dcc_file.write(buffer, bytes_read);
+		_dcc_bytes_sent += bytes_read;
+	} else {
+		int bytes_sent = send(_dcc_socket, buffer, bytes_read, 0);
+		if (bytes_sent > 0) {
+			_dcc_bytes_sent += bytes_sent;
+		}
+	}
+
+	if (_dcc_bytes_sent >= _dcc_file_size) {
+		cancelDCCTransfer();
+	}
+}
+
+void Client::cancelDCCTransfer() {
+	if (_dcc_socket >= 0) {
+		close(_dcc_socket);
+		_dcc_socket = -1;
+	}
+	if (_dcc_file.is_open()) {
+		_dcc_file.close();
+	}
+	_dcc_active = false;
+	_dcc_filename.clear();
+	_dcc_file_size = 0;
+	_dcc_bytes_sent = 0;
 }
