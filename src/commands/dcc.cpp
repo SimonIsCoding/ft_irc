@@ -3,6 +3,7 @@
 #include <sstream>
 #include <fstream>
 #include <sys/stat.h>
+#include <arpa/inet.h>
 
 void Server::dcc(int fd, std::istringstream &strm_msg) {
 	std::string type;
@@ -15,7 +16,7 @@ void Server::dcc(int fd, std::istringstream &strm_msg) {
 	strm_msg >> type >> target >> filename >> ip >> port >> file_size;
 
 	if (type.empty() || target.empty() || filename.empty() || ip.empty() || port <= 0 || file_size <= 0) {
-		clientLog(fd, "Bad DCC command syntax. Usage: DCC SEND|RECV <nickname> <filename> <ip> <port> <size>\n");
+		clientLog(fd, "Bad DCC command syntax. Usage: DCC SEND <nickname> <filename>\n");
 		return;
 	}
 
@@ -33,18 +34,29 @@ void Server::dcc(int fd, std::istringstream &strm_msg) {
 			return;
 		}
 
-		if (_clients[fd]->startDCCSend(filename, ip, port, st.st_size)) {
-			clientLog(fd, "DCC SEND started successfully.\n");
+		// Get local IP address
+		struct sockaddr_in addr;
+		socklen_t addr_len = sizeof(addr);
+		getsockname(_clients[fd]->getSocket(), (struct sockaddr*)&addr, &addr_len);
+		std::string local_ip = inet_ntoa(addr.sin_addr);
+		
+		// Convert IP to DCC format (dotted decimal to integer)
+		unsigned long ip_long = inet_addr(local_ip.c_str());
+		ip_long = ntohl(ip_long); // Convert to network byte order
+
+		// Send DCC SEND offer to target
+		std::string dcc_offer = "PRIVMSG " + target + " :\001DCC SEND " + filename + " " + 
+			std::to_string(ip_long) + " " + std::to_string(port) + " " + 
+			std::to_string(st.st_size) + "\001\r\n";
+		send(target_fd, dcc_offer.c_str(), dcc_offer.length(), 0);
+
+		// Start listening for DCC connection
+		if (_clients[fd]->startDCCSend(filename, local_ip, port, st.st_size)) {
+			clientLog(fd, "DCC SEND offer sent. Waiting for acceptance...\n");
 		} else {
 			clientLog(fd, "Failed to start DCC SEND.\n");
 		}
-	} else if (type == "RECV") {
-		if (_clients[fd]->startDCCReceive(filename, ip, port, file_size)) {
-			clientLog(fd, "DCC RECV started successfully.\n");
-		} else {
-			clientLog(fd, "Failed to start DCC RECV.\n");
-		}
 	} else {
-		clientLog(fd, "Invalid DCC type. Use SEND or RECV.\n");
+		clientLog(fd, "Invalid DCC type. Use SEND.\n");
 	}
 } 

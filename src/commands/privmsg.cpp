@@ -1,5 +1,7 @@
 #include "../../include/Server.hpp"
 #include "../../include/Client.hpp"
+#include <sstream>
+#include <arpa/inet.h>
 
 void Server::privmsg(int fd, std::istringstream &message)
 {
@@ -13,6 +15,40 @@ void Server::privmsg(int fd, std::istringstream &message)
 		clientLog(fd, "Bad use of command privmsg.\n");
 		return;
 	}
+
+	// Check for CTCP DCC message
+	if (content[0] == '\001' && content[content.length() - 1] == '\001') {
+		content = content.substr(1, content.length() - 2); // Remove CTCP delimiters
+		std::istringstream dcc_content(content);
+		std::string dcc_type;
+		dcc_content >> dcc_type;
+
+		if (dcc_type == "DCC") {
+			std::string dcc_command;
+			std::string filename;
+			unsigned long ip_long;
+			int port;
+			std::streamsize file_size;
+
+			dcc_content >> dcc_command >> filename >> ip_long >> port >> file_size;
+
+			if (dcc_command == "SEND") {
+				// Convert IP from long to string
+				struct in_addr addr;
+				addr.s_addr = htonl(ip_long);
+				std::string ip = inet_ntoa(addr);
+
+				// Start receiving the file
+				if (_clients[fd]->startDCCReceive(filename, ip, port, file_size)) {
+					clientLog(fd, "DCC RECV started successfully.\n");
+				} else {
+					clientLog(fd, "Failed to start DCC RECV.\n");
+				}
+				return;
+			}
+		}
+	}
+
 	if (nickname[0] == '#' || nickname[0] == '&')
 		return (sendChannel(fd, nickname, content));
 	int dest_fd = getFdByNickname(nickname);
