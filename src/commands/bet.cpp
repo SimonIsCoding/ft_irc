@@ -61,10 +61,20 @@ void Server::bet(int fd, std::istringstream &message)
 		return ;
 	}
 
-	int random = rand() % 2;
+	int random = rand() % 101;
+	std::cout << random << std::endl;
 	int clientMoney = _clients[fd]->getMoney();
 	_clients[fd]->setMoney(clientMoney - moneyAmount);
-	if (side == "tail" && random == 0) {
+	if (side == "tail" && random < 51) {
+		_clients[fd]->setMoney(clientMoney + moneyAmount);
+		std::stringstream ss;
+		ss << "You now have " << _clients[fd]->getMoney() << "$\n";
+		clientLog(fd, ss.str());
+		answerMessage = "[Croupier]: You win for this round, try again and all in for the lore.\n";
+		send(fd, answerMessage.c_str(), answerMessage.length(), 0);
+		return ;
+	}
+	else if (side == "head" && random > 50) {
 		_clients[fd]->setMoney(clientMoney + moneyAmount);
 		std::stringstream ss;
 		ss << "You now have " << _clients[fd]->getMoney() << "$\n";
@@ -77,7 +87,6 @@ void Server::bet(int fd, std::istringstream &message)
 		std::stringstream ss;
 		ss << "You now have " << _clients[fd]->getMoney() << "$\n";
 		clientLog(fd, ss.str());
-		
 		if (_clients[fd]->getMoney() == 0)
 		{
 			answerMessage = "[Croupier]: Cry me a river :(\n";

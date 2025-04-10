@@ -57,6 +57,10 @@ void Server::dealerMessage(int fd) {
 		_clients[fd]->setMoney(1000);
 	}
 	else
+	{
 		message = "[Croupier]: The game is simple. To play, you must use the BET command as following : BET <head or tail> <amount of money>.\n";
+		send(fd, message.c_str(), message.length(), 0);
+		message = "[Croupier]: You start with 1000$\n";
+	}
 	send(fd, message.c_str(), message.length(), 0);
 }
