@@ -94,7 +94,6 @@ void	Server::mode(int fd, std::istringstream &strm_msg)
 void	Server::invite_mode(int fd, bool addition, std::string channelname)
 {
 	_channels[channelname]->setInviteRights(addition);
-	RPL_MODE(_clients[fd], channelname, addition ? "+i" : "-i", "");
 	if (addition)
 		return (clientLog(fd, "Invite mode restriction has been set to true.\n"));
 	return (clientLog(fd, "Invite mode restriction has been set to false.\n"));
@@ -103,7 +102,6 @@ void	Server::invite_mode(int fd, bool addition, std::string channelname)
 void	Server::topic_mode(int fd, bool addition, std::string channelname)
 {
 	_channels[channelname]->setTopicRights(addition);
-	RPL_MODE(_clients[fd], channelname, addition ? "+t" : "-t", "");
 	if (addition)
 		return (clientLog(fd, "Topic mode restriction has been set to true.\n"));
 	return (clientLog(fd, "Topic mode restriction has been set to false.\n"));
@@ -113,7 +111,6 @@ void	Server::password_mode(int fd, bool addition, std::string channelname, std::
 {
 	_channels[channelname]->setPassNeed(addition);
 	_channels[channelname]->setPassword(password);
-	RPL_MODE(_clients[fd], channelname, addition ? "+k" : "-k", password);
 	if (addition)
 		return (clientLog(fd, "Added password successfully.\n"));
 	return (clientLog(fd, "Password rule removed.\n"));
@@ -129,7 +126,6 @@ void	Server::limit_mode(int fd, bool addition, std::string channelname, std::str
 		return (clientLog(fd, "'" + limit +  "' is not a valid argument for user limit.\n"));
 	}
 	_channels[channelname]->setUserLimit(limit_number);
-	RPL_MODE(_clients[fd], channelname, addition ? "+l" : "-l", limit);
 	return (clientLog(fd, "The channel user limit has been set to " + limit + ".\n"));
 	(void)addition;
 }
@@ -141,7 +137,6 @@ void	Server::privilege_mode(int fd, bool addition, std::string channelname, std:
 		return (clientLog(fd, "User not found.\n"));
 	if (!_channels[channelname]->isMember(dest_fd))
 		return (clientLog(fd, "Bro is not even a member.\n"));
-	RPL_MODE(_clients[fd], channelname, addition ? "+o" : "-o", privilege);
 	if (addition)
 	{
 		_channels[channelname]->addOperator(_clients[dest_fd]);

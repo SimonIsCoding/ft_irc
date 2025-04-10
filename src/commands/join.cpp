@@ -79,7 +79,6 @@ void Server::kick(int fd, std::istringstream &strm_msg){
 		return (clientLog(fd, "You are not operator of this channel.\n"));
 	if (dest_fd > 0){
 		_channels[channelname]->deleteMember(dest_fd);
-		RPL_KICK(_clients[fd], channelname, _clients[dest_fd]);
 		if (reason.empty()){
 			clientLog(fd, _clients[dest_fd]->getNickname() + " has been kicked from channel " + channelname + ".\n");
 			return (clientLog(dest_fd, "You have been kicked from channel " + channelname + ".\n"));

@@ -21,7 +21,6 @@ void Server::topic(int fd, std::istringstream &strm_msg){
 	}
 	if ((_channels[channelname]->isOperator(fd) && _channels[channelname]->getTopicRights()) || !_channels[channelname]->getTopicRights()){
 		_channels[channelname]->setTopic(newtopic);
-		RPL_TOPIC(_clients[fd], channelname, newtopic);
 		return (clientLog(fd, channelname + "'s topic set to: " + _channels[channelname]->getTopic()+ ".\n"));
 	}
 	else

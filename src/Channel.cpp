@@ -30,7 +30,6 @@ void Channel::rmOperator(int fd){
 
 void Channel::addMember(Client *member){
 	_members.insert(std::make_pair(member->getSocket(), member));
-	RPL_JOIN(member->getNickname(), this->_name);
 }
 
 const std::string Channel::getChannelName()

@@ -39,7 +39,6 @@ void Server::nick(int fd, std::istringstream &strm_msg)
 	}
 	this->_clients[fd]->setNickname(given_nick);
 	this->_clients[fd]->increaseStatus();
-	RPL_NICK()
 	clientLog(fd, "Nickname has been set\n");
 }
 
