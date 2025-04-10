@@ -41,6 +41,9 @@ void Server::join(int fd, std::istringstream &strm_msg)
 			this->_channels[channelname]->addMember(this->_clients[fd]);
 			if (_channels[channelname]->getInviteRights())
 				_channels[channelname]->deleteInvitation(fd);
+			if (channelname == "#casino") {
+				return(dealerMessage(fd));
+			}
 			return (clientLog(fd, "You have joined channel " + channelname + ".\n"));
 		}
 		return (clientLog(fd, "You are not invited to join this channel.\n"));

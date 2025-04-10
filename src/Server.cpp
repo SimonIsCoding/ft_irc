@@ -73,6 +73,7 @@ void Server::run() {
 	if (epoll_ctl(this->_epoll_fd, EPOLL_CTL_ADD, STDIN_FILENO, &ev) == -1) {
 		throw std::runtime_error("Failed to add standard input to epoll");
 	}
+	createCasino();
 	while (true) {
 		int	nb_events = epoll_wait(this->_epoll_fd, events, MAX_EVENTS, -1);
 		if (nb_events == -1)
@@ -126,6 +127,7 @@ void Server::handleNewConnection() {
 		std::cerr << "fail to add client socket to epoll\n";
 		return ;
 	}
+	dealerMessage(client_fd);
 
 	std::cout << "New client connected. Total _clients: " << _clients.size() << std::endl;
 }
@@ -207,4 +209,11 @@ int	Server::getFdByNickname(std::string &nickname){
 		}
 	}
 	return -1;
+}
+
+void Server::createCasino() {
+	Client* new_client = new Client(10001);
+	_clients.insert(std::make_pair(10001, new_client));
+	new_client->setNickname("Croupier");
+	createChannel(new_client, "#casino");
 }

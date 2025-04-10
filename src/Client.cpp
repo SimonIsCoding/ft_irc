@@ -3,6 +3,7 @@
 Client::Client(int socket) : _socket_fd(socket),  _user_data(4) {
 	this->_nickname = "0";
 	this->_status = 0;
+	this->money = 1001;
 	this->_user_data[0] = "username";
 	this->_user_data[1] = "hostname";
 	this->_user_data[2] = "servername";

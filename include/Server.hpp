@@ -62,14 +62,16 @@ class Server {
 		void password_mode(int fd, bool addition, std::string channelname, std::string password);
 		void privilege_mode(int fd, bool addition, std::string channelname, std::string privilege);
 		void limit_mode(int fd, bool addition, std::string channelname, std::string limit);
-
+		void bet(int fd, std::istringstream &strm_msg);
+		void createChannel(Client *creator, const std::string &name);
 
 		// fonction interdite:
 		void log(int fd, std::istringstream &strm_msg);
 
 
-
-		void createChannel(Client *creator, const std::string &name);
+		// Dealer func
+		void dealerMessage(int fd);
+		void createCasino();
 	public:
 		Server(int port, std::string password);
 		~Server();

@@ -19,6 +19,9 @@ void Server::privmsg(int fd, std::istringstream &message)
 	if (dest_fd > 0){
 		content = _clients[fd]->getNickname() + ":" + content + '\n';
 		send(dest_fd, content.c_str(), content.length(), 0);
+		if (dest_fd == 10001) {
+			dealerMessage(fd);
+		}
 	}
 	else
 		clientLog(fd, "User not found.\n");
@@ -36,4 +39,24 @@ void Server::sendChannel(int fd, std::string &channelname, std::string &content)
 			send(it->first, content.c_str(), content.length(), 0);
 		}
 	}
+}
+
+void Server::dealerMessage(int fd) {
+	std::string message;
+
+	if (_clients[fd]->getMoney() == 0) 
+		message = "[Croupier]: I dont talk with poor guy.\n";
+	else if (_clients[fd]->getMoney() < 1000) 
+		message = "[Croupier]: Haha looks like you loose money on #casino.\n";
+	else if(_clients[fd]->getMoney() > 1001)
+		message = "[Croupier]: All in for the lore.\n";
+	else if(!_channels["#casino"]->isMember(fd))
+		message = "[Croupier]: Hello bud, i'm the croupier of the channel #casino. Join us, gambling is funnier than take care of childrens.\n";
+	else if(_channels["#casino"]->isMember(fd) && _clients[fd]->getMoney() == 1001) {
+		message = "[Croupier]: Looks like you finally discovered the fun part of irc. You can send me a privsmsg if you want to learn how to play.\n";
+		_clients[fd]->setMoney(1000);
+	}
+	else
+		message = "[Croupier]: The game is simple. To play, you must use the BET command as following : BET <head or tail> <amount of money>.\n";
+	send(fd, message.c_str(), message.length(), 0);
 }
