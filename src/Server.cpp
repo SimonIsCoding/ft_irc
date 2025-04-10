@@ -199,7 +199,7 @@ bool	Server::check_realname_syntax(const std::string &content)
 {
 	if (content[0] != ':')
 		return (false);
-	for (size_t i = 1; i < content.size(); ++i)
+	for (size_t i = 1; i < content.size() - 1; ++i)
 		if (!std::isalpha(content[i]) && content[i] != ' ')
 			return (false);
 	return (true);
