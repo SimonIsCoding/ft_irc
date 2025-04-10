@@ -23,6 +23,7 @@ void Server::invite(int fd, std::istringstream &strm_msg)
 		if (_channels[channelname]->isInvited(dest_fd))
 			return (clientLog(fd, _clients[dest_fd]->getNickname() + " is already invited to this channel.\n"));
 		_channels[channelname]->inviteUser(_clients[dest_fd]);
+		RPL_INVITE(_clients[fd], channelname, _clients[dest_fd]);
 		clientLog(dest_fd, "You have been invted to join channel " + channelname + ".\n");
 		return (clientLog(fd, "User " + _clients[dest_fd]->getNickname() + " has been invited to channel " + channelname + ".\n"));
 	}else{

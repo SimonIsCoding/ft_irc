@@ -19,6 +19,18 @@
 #include <csignal>
 #include <cstdlib>
 
+#define RPL_JOIN(nick, channel)						(":" + nick + " JOIN " + channel + "\r\n")
+#define RPL_PART(client, channel)					(":" + client + " PART " + channel + "\r\n")
+#define RPL_MODE(client, channel, mode, name)		(":" + client + " MODE " + channel + " " + mode + " " + name + "\r\n")
+#define RPL_KICK(client, channel, target)			(":" + client + " KICK " + channel + " " + target + "\r\n")
+#define RPL_INVITE(client, invitee, channel)	(":" + client + " INVITE " + invitee + " " + channel + "\r\n")
+#define RPL_NICK(oldNick, newNick)					(":" + oldNick + " NICK " + newNick + "\r\n")
+#define RPL_TOPIC(client, channel, topic)			(":" + client + " TOPIC " + channel + " :" + topic + "\r\n")
+#define RPL_WELCOME(client)							(": 001 " + client + " :Welcome in the IRC world, " + client + "\r\n")
+#define RPL_NOTOPIC(client, channel)				(": 331 " + client + " " + channel + " :No topic is set\r\n")
+#define RPL_SEETOPIC(client, channel, topic)		(": 332 " + client + " " + channel + " :" + topic + "\r\n")
+#define RPL_INVITESNDR(client, invitee, channel)	(": 341 " + client + " " + invitee + " " + channel + "\r\n")
+#define RPL_NAMEREPLY(nick, channel, nicknames)		(": 353 " + nick + " = " + channel + " :" + nicknames + "\r\n")
 
 #define MAX_EVENTS	10
 #include "Client.hpp"
@@ -64,6 +76,18 @@ class Server {
 		void limit_mode(int fd, bool addition, std::string channelname, std::string limit);
 		void bet(int fd, std::istringstream &strm_msg);
 		void createChannel(Client *creator, const std::string &name);
+
+		// New HexChat compatible commands
+		void part(int fd, std::istringstream &strm_msg);
+		void quit(int fd, std::istringstream &strm_msg);
+		void whois(int fd, std::istringstream &strm_msg);
+		void list(int fd, std::istringstream &strm_msg);
+		void names(int fd, std::istringstream &strm_msg);
+		void ping(int fd, std::istringstream &strm_msg);
+		void pong(int fd, std::istringstream &strm_msg);
+		void notice(int fd, std::istringstream &strm_msg);
+		void who(int fd, std::istringstream &strm_msg);
+		void away(int fd, std::istringstream &strm_msg);
 
 		// fonction interdite:
 		void log(int fd, std::istringstream &strm_msg);
