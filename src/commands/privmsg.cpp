@@ -12,21 +12,19 @@ void Server::privmsg(int fd, std::istringstream &message)
 	std::getline(message, content);
 	if (nickname.empty() || content.empty())
 	{
+		commandLog("PRIVMSG", false);
 		clientLog(fd, "Bad use of command privmsg.\n");
 		return;
 	}
 
-	// Check for DCC commands in PRIVMSG
 	if (content.find(" :\001DCC ") != std::string::npos || content.find(" :DCC ") != std::string::npos)
 	{
-		// Extract DCC command part and process it
 		size_t dcc_start = content.find(" :DCC ");
 		if (dcc_start == std::string::npos)
 			dcc_start = content.find(" :\001DCC ");
 		
-		std::string dcc_part = content.substr(dcc_start + 2); // Skip the " :" prefix
+		std::string dcc_part = content.substr(dcc_start + 2);
 		
-		// Remove CTCP markers if present
 		if (dcc_part[0] == '\001')
 			dcc_part = dcc_part.substr(1, dcc_part.length() - (dcc_part[dcc_part.length()-1] == '\001' ? 2 : 1));
 		
@@ -44,23 +42,31 @@ void Server::privmsg(int fd, std::istringstream &message)
 		if (dest_fd == 10001) {
 			dealerMessage(fd);
 		}
+		commandLog("PRIVMSG", true);
 	}
-	else
+	else {
+		commandLog("PRIVMSG", false);
 		clientLog(fd, "User not found.\n");
+	}
 }
 
 void Server::sendChannel(int fd, std::string &channelname, std::string &content){
-	if (!doChannelExist(channelname))
+	if (!doChannelExist(channelname)) {
+		commandLog("PRIVMSG", false);
 		return clientLog(fd, "Channel do not exist.\n");
+	}
 	std::map<int, Client*> members = _channels[channelname]->getMembers();
 	content = "[" + channelname + "] " + _clients[fd]->getNickname() + ":" + content + '\n';
-	if (members.find(fd) == members.end())
+	if (members.find(fd) == members.end()) {
+		commandLog("PRIVMSG", false);
 		return clientLog(fd, "You are not member of this channel.\n");
+	}
 	for (std::map<int, Client*>::iterator it = members.begin(); it != members.end(); ++it) {
 		if (it->first != fd){
 			send(it->first, content.c_str(), content.length(), 0);
 		}
 	}
+	commandLog("PRIVMSG", true);
 }
 
 void Server::dealerMessage(int fd) {

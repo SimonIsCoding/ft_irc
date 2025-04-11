@@ -38,25 +38,37 @@ void	Server::mode(int fd, std::istringstream &strm_msg)
 		if (!params.empty())
 			vec_params.push_back(params);
 	}
-	if (vec_params.size() == 0)
+	if (vec_params.size() == 0) {
+		commandLog("MODE", false);
 		return (clientLog(fd, "Bad syntax.\n"));
+	}
 	options = vec_params[0];
 	vec_params.erase(vec_params.begin());
-	if (!checkEmpty(strm_msg) || channelname.empty() || options.empty())
+	if (!checkEmpty(strm_msg) || channelname.empty() || options.empty()) {
+		commandLog("MODE", false);
 		return (clientLog(fd, "Bad syntax.\n"));
-	if (!doChannelExist(channelname))
+	}
+	if (!doChannelExist(channelname)) {
+		commandLog("MODE", false);
 		return (clientLog(fd, "Channel does not exist.\n"));
-	if (!_channels[channelname]->isOperator(fd))
+	}
+	if (!_channels[channelname]->isOperator(fd)) {
+		commandLog("MODE", false);
 		return (clientLog(fd, "Bro who are you ?! You're not even an operator.\n"));
-	if (options[0] != '+' && options[0] != '-')
+	}
+	if (options[0] != '+' && options[0] != '-') {
+		commandLog("MODE", false);
 		return (clientLog(fd, "First parameter char must be '+' or '-'.\n"));
+	}
 	if (options[0] == '+')
 		addition = true;
 	else
 		addition = false;
 	int char_need_arg = countMatchingChars(options, addition);
-	if (char_need_arg != (int)vec_params.size())
+	if (char_need_arg != (int)vec_params.size()) {
+		commandLog("MODE", false);
 		return (clientLog(fd, "Not good number of parameters required.\n"));
+	}
 	options.erase(0, 1);
 
 	int len = options.length();
@@ -86,6 +98,7 @@ void	Server::mode(int fd, std::istringstream &strm_msg)
 					vec_params.erase(vec_params.begin());
 				break;
 			default:
+				commandLog("MODE", false);
 				clientLog(fd, "Bad input for MODE\n");
 		}
 	}
@@ -94,6 +107,7 @@ void	Server::mode(int fd, std::istringstream &strm_msg)
 void	Server::invite_mode(int fd, bool addition, std::string channelname)
 {
 	_channels[channelname]->setInviteRights(addition);
+	commandLog("MODE", true);
 	if (addition)
 		return (clientLog(fd, "Invite mode restriction has been set to true.\n"));
 	return (clientLog(fd, "Invite mode restriction has been set to false.\n"));
@@ -102,6 +116,7 @@ void	Server::invite_mode(int fd, bool addition, std::string channelname)
 void	Server::topic_mode(int fd, bool addition, std::string channelname)
 {
 	_channels[channelname]->setTopicRights(addition);
+	commandLog("MODE", true);
 	if (addition)
 		return (clientLog(fd, "Topic mode restriction has been set to true.\n"));
 	return (clientLog(fd, "Topic mode restriction has been set to false.\n"));
@@ -111,6 +126,7 @@ void	Server::password_mode(int fd, bool addition, std::string channelname, std::
 {
 	_channels[channelname]->setPassNeed(addition);
 	_channels[channelname]->setPassword(password);
+	commandLog("MODE", true);
 	if (addition)
 		return (clientLog(fd, "Added password successfully.\n"));
 	return (clientLog(fd, "Password rule removed.\n"));
@@ -123,9 +139,11 @@ void	Server::limit_mode(int fd, bool addition, std::string channelname, std::str
 		limit_number = std::atoi(limit.c_str());
 	}
 	catch(std::exception& e){
+		commandLog("MODE", false);
 		return (clientLog(fd, "'" + limit +  "' is not a valid argument for user limit.\n"));
 	}
 	_channels[channelname]->setUserLimit(limit_number);
+	commandLog("MODE", true);
 	return (clientLog(fd, "The channel user limit has been set to " + limit + ".\n"));
 	(void)addition;
 }
@@ -133,10 +151,15 @@ void	Server::limit_mode(int fd, bool addition, std::string channelname, std::str
 void	Server::privilege_mode(int fd, bool addition, std::string channelname, std::string privilege)
 {
 	int dest_fd = getFdByNickname(privilege);
-	if (dest_fd == -1)
+	if (dest_fd == -1) {
+		commandLog("MODE", false);
 		return (clientLog(fd, "User not found.\n"));
-	if (!_channels[channelname]->isMember(dest_fd))
+	}
+	if (!_channels[channelname]->isMember(dest_fd)) {
+		commandLog("MODE", false);
 		return (clientLog(fd, "Bro is not even a member.\n"));
+	}
+	commandLog("MODE", true);
 	if (addition)
 	{
 		_channels[channelname]->addOperator(_clients[dest_fd]);

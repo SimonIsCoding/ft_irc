@@ -60,6 +60,7 @@ void Server::parsing(int fd, std::istringstream &strm_msg){
 			dcc(fd, strm_msg);
 			break;
 		default:
+			commandLog(command, false);
 			clientLog(fd, "Bad input\n");
 	}
 }

@@ -54,6 +54,7 @@ class Server {
 		bool checkEmpty(std::istringstream &content);
 		bool check_realname_syntax(const std::string &content);
 		void clientLog(int fd, std::string message);
+		void commandLog(std::string command, bool success);
 		bool doChannelExist(std::string name);
 		int	getFdByNickname(std::string &nickname);
 		void ServerCommand();
