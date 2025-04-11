@@ -264,7 +264,7 @@ void Server::createCasino() {
 }
 
 void Server::commandLog(std::string command, bool success) {
-	if (success) 
+	if (success)
 		std::cout << "\033[1;32mCommand " + command + " has been done successfully.\033[0m\n" << std::endl;
 	else 
 		std::cout << "\033[1;31mFail to execute " + command << ".\033[0m\n" << std::endl;

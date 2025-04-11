@@ -12,9 +12,9 @@ void Server::log(int fd, std::istringstream &strm_msg)
 void Server::parsing(int fd, std::istringstream &strm_msg){
 	int i;
 	std::string command;
-	std::string commands[] = {"PASS", "USER", "NICK", "PRIVMSG", "JOIN", "KICK", "TOPIC", "INVITE", "MODE", "BET", "DCC"};
+	std::string commands[] = {"PASS", "USER", "NICK", "PRIVMSG", "JOIN", "KICK", "TOPIC", "INVITE", "MODE", "BET", "DCC", "PING"};
 	strm_msg >> command;
-
+	std::cout << "sic: " << strm_msg.str() << std::endl;
 	int len = sizeof(commands) / sizeof(commands[0]);
 	if (command == "l")
 		return log(fd, strm_msg);
@@ -58,6 +58,9 @@ void Server::parsing(int fd, std::istringstream &strm_msg){
 			break;
 		case (10):
 			dcc(fd, strm_msg);
+			break;
+		case (11):
+			commandLog("PING", true);
 			break;
 		default:
 			commandLog(command, false);
