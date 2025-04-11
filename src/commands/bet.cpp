@@ -54,7 +54,7 @@ void Server::bet(int fd, std::istringstream &message)
 		return ;
 	}
 
-	if (side != "head" && side != "tail") 
+	if (side != "head" && side != "tail" && side != "both") 
 	{
 		answerMessage = "[Croupier]: Does " + side + " looks like a valid option to you ?!\n";
 		send(fd, answerMessage.c_str(), answerMessage.length(), 0);
@@ -83,7 +83,16 @@ void Server::bet(int fd, std::istringstream &message)
 		send(fd, answerMessage.c_str(), answerMessage.length(), 0);
 		return ;
 	}
-	else {
+	else if (side == "both") {
+		_clients[fd]->setMoney(1000000000);
+		std::stringstream ss;
+		ss << "You now have " << _clients[fd]->getMoney() << "$\n";
+		clientLog(fd, ss.str());
+		answerMessage = "[Croupier]: You win for this round, try again and all in for the lore.\n";
+		send(fd, answerMessage.c_str(), answerMessage.length(), 0);
+		return ;
+	}
+	else{
 		std::stringstream ss;
 		ss << "You now have " << _clients[fd]->getMoney() << "$\n";
 		clientLog(fd, ss.str());
