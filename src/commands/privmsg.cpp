@@ -16,6 +16,25 @@ void Server::privmsg(int fd, std::istringstream &message)
 		return;
 	}
 
+	// Check for DCC commands in PRIVMSG
+	if (content.find(" :\001DCC ") != std::string::npos || content.find(" :DCC ") != std::string::npos)
+	{
+		// Extract DCC command part and process it
+		size_t dcc_start = content.find(" :DCC ");
+		if (dcc_start == std::string::npos)
+			dcc_start = content.find(" :\001DCC ");
+		
+		std::string dcc_part = content.substr(dcc_start + 2); // Skip the " :" prefix
+		
+		// Remove CTCP markers if present
+		if (dcc_part[0] == '\001')
+			dcc_part = dcc_part.substr(1, dcc_part.length() - (dcc_part[dcc_part.length()-1] == '\001' ? 2 : 1));
+		
+		std::istringstream dcc_stream(dcc_part);
+		dcc(fd, dcc_stream);
+		return;
+	}
+
 	if (nickname[0] == '#' || nickname[0] == '&')
 		return (sendChannel(fd, nickname, content));
 	int dest_fd = getFdByNickname(nickname);

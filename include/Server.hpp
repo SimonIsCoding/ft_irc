@@ -18,11 +18,21 @@
 #include <fcntl.h>
 #include <csignal>
 #include <cstdlib>
+#include <utility> // For std::pair
 
 #define MAX_EVENTS	10
 #include "Client.hpp"
 #include "Channel.hpp"
 
+// For DCC transfers, store socket_fd, sender_fd, and port
+struct DCCTransferInfo {
+	int socket_fd;
+	int sender_fd;
+	int port;
+	
+	DCCTransferInfo(int s, int f, int p) : socket_fd(s), sender_fd(f), port(p) {}
+	DCCTransferInfo() : socket_fd(-1), sender_fd(-1), port(0) {}
+};
 
 class Server {
 	private:
@@ -33,6 +43,8 @@ class Server {
 		static const int BUFFER_SIZE = 1024;
 		std::map<int, Client*> _clients;
 		std::map<std::string, Channel*> _channels;
+		std::map<std::string, DCCTransferInfo> _dcc_transfers; // filename -> transfer info
+		std::map<std::string, std::pair<char*, std::streamsize> > _dcc_file_contents; // filename -> (data_buffer, size)
 		int _epoll_fd;
 
 		void handleNewConnection();
@@ -63,6 +75,11 @@ class Server {
 		void limit_mode(int fd, bool addition, std::string channelname, std::string limit);
 		void bet(int fd, std::istringstream &strm_msg);
 		void createChannel(Client *creator, const std::string &name);
+		
+		// DCC file transfer functions
+		void dcc(int fd, std::istringstream &message);
+		void dccSend(int fd, std::istringstream &message);
+		void dccAccept(int fd, std::istringstream &message);
 
 		// fonction interdite:
 		void log(int fd, std::istringstream &strm_msg);

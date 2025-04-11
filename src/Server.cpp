@@ -46,11 +46,28 @@ Server::~Server() {
 	for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
 		delete (*it).second;
 	}
+	
+	// Clean up all channels
 	for (std::map<std::string, Channel*>::iterator it = _channels.begin(); it != _channels.end(); ++it) {
 		delete (*it).second;
 	}
+	
+	// Clean up any file buffers from pending DCC transfers
+	for (std::map<std::string, std::pair<char*, std::streamsize> >::iterator it = _dcc_file_contents.begin(); 
+	     it != _dcc_file_contents.end(); ++it) {
+		delete[] it->second.first;
+	}
+	
+	// Close any open DCC sockets
+	for (std::map<std::string, DCCTransferInfo>::iterator it = _dcc_transfers.begin();
+	     it != _dcc_transfers.end(); ++it) {
+		close(it->second.socket_fd);
+	}
+	
 	_clients.clear();
 	_channels.clear();
+	_dcc_transfers.clear();
+	_dcc_file_contents.clear();
 	close(_server_fd);
 	close(_epoll_fd);
 }
