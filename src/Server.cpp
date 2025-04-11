@@ -1,5 +1,6 @@
 #include "../include/Server.hpp"
 #include "../include/Client.hpp"
+#include <cerrno>
 
 Server::Server(int _port, std::string pass) : _port(_port), _password(pass) {
 	// Create socket
