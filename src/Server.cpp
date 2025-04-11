@@ -72,9 +72,11 @@ Server::~Server() {
 	close(_epoll_fd);
 }
 
+static volatile sig_atomic_t g_running = 1;
+
 void signal_handler(int signal) {
-	(void) signal;
-	throw std::logic_error("Server shutdown");
+	(void)signal;
+	g_running = 0;
 }
 
 void Server::run() {
@@ -82,7 +84,7 @@ void Server::run() {
 	struct epoll_event events[MAX_EVENTS];
 
 	std::signal(SIGINT, signal_handler);
-    std::signal(SIGTERM, signal_handler);
+	std::signal(SIGTERM, signal_handler);
 	struct epoll_event ev;
 	ev.events = EPOLLIN;
 	ev.data.fd = STDIN_FILENO;
@@ -91,28 +93,28 @@ void Server::run() {
 		throw std::runtime_error("Failed to add standard input to epoll");
 	}
 	createCasino();
-	while (true) {
-		int	nb_events = epoll_wait(this->_epoll_fd, events, MAX_EVENTS, -1);
-		if (nb_events == -1)
-		{
+	while (g_running) {
+		int nb_events = epoll_wait(this->_epoll_fd, events, MAX_EVENTS, -1);
+		if (nb_events == -1) {
+			if (errno == EINTR)  // Interrupted by signal
+				continue;
 			std::cerr << "epoll_wait failed\n";
-			continue ;
+			continue;
 		}
-		for (int i = 0; i < nb_events; i++)
-		{
-			if (events[i].data.fd == STDIN_FILENO){
+		for (int i = 0; i < nb_events; i++) {
+			if (events[i].data.fd == STDIN_FILENO) {
 				ServerCommand();
 				break;
 			}
-			else if (events[i].data.fd == this->_server_fd)//receive new connection
+			else if (events[i].data.fd == this->_server_fd) //receive new connection
 				handleNewConnection();
-			else
-			{
+			else {
 				handleClientMessage(events[i].data.fd);
 				break;
 			}
 		}
 	}
+	std::cout << "Server shutting down gracefully..." << std::endl;
 }
 
 void Server::ServerCommand() {
