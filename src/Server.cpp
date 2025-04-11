@@ -217,11 +217,18 @@ bool	Server::checkEmpty(std::istringstream &content)
 
 bool	Server::check_realname_syntax(const std::string &content)
 {
+	bool check = false;
+
 	if (content[0] != ':')
 		return (false);
 	for (size_t i = 1; i < content.size() - 1; ++i)
+	{
+		check = true;
 		if (!std::isalpha(content[i]) && content[i] != ' ')
 			return (false);
+	}
+	if (check == false)
+		return false;
 	return (true);
 }
 

@@ -61,9 +61,9 @@ void Server::user(int fd, std::istringstream &strm_msg)
 	if (!given_realname.empty() && given_realname[0] == ' ')
 		given_realname = given_realname.substr(1);
 	if (given_username.empty() || given_hostname.empty() || given_servername.empty() || given_realname.empty())
-		clientLog(fd, "Bad syntax\n");
+		return (clientLog(fd, "Bad syntax\n"));
 	else if (!check_realname_syntax(given_realname))
-		clientLog(fd, "Bad syntax\n");
+		return (clientLog(fd, "Bad syntax\n"));
 	if (!given_realname.empty() && given_realname[0] == ':')
 		given_realname = given_realname.substr(1);
 	this->_clients[fd]->setUsername(given_username);
