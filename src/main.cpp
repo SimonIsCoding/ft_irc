@@ -14,6 +14,9 @@ int main(int argc, char* argv[]) {
 		if (port <= 0 || port > 65535) {
 			throw std::runtime_error("Invalid port number. Must be between 1-65535");
 		}
+		else if (port == 6668) {
+			throw std::runtime_error("This port is especially used for the file transfer. Please choose another port between 1 and 65535.");
+		}
 
 		if (password.empty()) {
 			throw std::runtime_error("Password cannot be empty");
