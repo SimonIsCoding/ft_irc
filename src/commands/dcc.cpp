@@ -107,11 +107,21 @@ void Server::dccSend(int fd, std::istringstream &message)
     std::streamsize file_size = file.tellg();
     file.seekg(0, std::ios::beg);
     
+    // Check file size limit (10MB)
+    const std::streamsize MAX_FILE_SIZE = 1 * 1024 * 1024;
+    if (file_size > MAX_FILE_SIZE) {
+        std::string error_msg = "File too large. Maximum size allowed is 10MB.\n";
+        clientLog(fd, error_msg);
+        file.close();
+        return;
+    }
+    
     char* file_buffer = new char[file_size];
     if (!file.read(file_buffer, file_size))
     {
         delete[] file_buffer;
         clientLog(fd, "Error reading file content.\n");
+        file.close();
         return;
     }
     file.close();
