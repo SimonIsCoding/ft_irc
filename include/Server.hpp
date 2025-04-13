@@ -19,6 +19,7 @@
 #include <csignal>
 #include <cstdlib>
 #include <utility> // For std::pair
+#include <fstream>
 
 #define MAX_EVENTS	10
 #include "Client.hpp"
@@ -29,7 +30,7 @@ struct DCCTransferInfo {
 	int socket_fd;
 	int sender_fd;
 	int port;
-	
+
 	DCCTransferInfo(int s, int f, int p) : socket_fd(s), sender_fd(f), port(p) {}
 	DCCTransferInfo() : socket_fd(-1), sender_fd(-1), port(0) {}
 };
@@ -75,8 +76,9 @@ class Server {
 		void privilege_mode(int fd, bool addition, std::string channelname, std::string privilege);
 		void limit_mode(int fd, bool addition, std::string channelname, std::string limit);
 		void bet(int fd, std::istringstream &strm_msg);
+		void spinCoin(int fd, bool isHead, std::string &guess);
 		void createChannel(Client *creator, const std::string &name);
-		
+
 		// DCC file transfer functions
 		void dcc(int fd, std::istringstream &message);
 		void dccSend(int fd, std::istringstream &message);
