@@ -53,7 +53,7 @@ void Server::bet(int fd, std::istringstream &message)
 
 	if (moneyAmount < 0)
 	{
-		answerMessage =  "[Croupier]: You can't bet negative values IDIOT.\n";
+		answerMessage =  "[Croupier]: You can't bet negative values IDIOT 🤣🫵\n";
 		send(fd, answerMessage.c_str(), answerMessage.length(), 0);
 		return ;
 	}
@@ -84,7 +84,7 @@ void Server::bet(int fd, std::istringstream &message)
 		std::stringstream ss;
 		ss << "You now have " << _clients[fd]->getMoney() << "$\n";
 		clientLog(fd, ss.str());
-		answerMessage = "[Croupier]: You won for this round, try again and all in for the lore.\n" + std::string(NC);
+		answerMessage = "[Croupier]: You won for this round, try again and all in for the lore.\n";
 		send(fd, answerMessage.c_str(), answerMessage.length(), 0);
 		return ;
 	}
@@ -93,7 +93,7 @@ void Server::bet(int fd, std::istringstream &message)
 		std::stringstream ss;
 		ss << "You now have " << _clients[fd]->getMoney() << "$\n";
 		clientLog(fd, ss.str());
-		answerMessage = "[Croupier]: You won for this round, try again and all in for the lore.\n" + std::string(NC);
+		answerMessage = "[Croupier]: You won for this round, try again and all in for the lore.\n";
 		send(fd, answerMessage.c_str(), answerMessage.length(), 0);
 		return ;
 	}
@@ -104,7 +104,7 @@ void Server::bet(int fd, std::istringstream &message)
 		std::stringstream ss;
 		ss << "You now have " << _clients[fd]->getMoney() << "$\n";
 		clientLog(fd, ss.str());
-		answerMessage = "[Croupier]: You won for this round, try again and all in for the lore.\n" + std::string(NC);
+		answerMessage = "[Croupier]: You won for this round, try again and all in for the lore.\n";
 		send(fd, answerMessage.c_str(), answerMessage.length(), 0);
 		return ;
 	}
@@ -114,12 +114,12 @@ void Server::bet(int fd, std::istringstream &message)
 		clientLog(fd, ss.str());
 		if (_clients[fd]->getMoney() == 0)
 		{
-			answerMessage = "[Croupier]: Cry me a river :(\n" + std::string(NC);
+			answerMessage = "[Croupier]: Cry me a river :(\n";
 			send(fd, answerMessage.c_str(), answerMessage.length(), 0);
 			return ;
 		}
 		else {
-			answerMessage = "[Croupier]: You are maybe 1 spin away from the big win.\n" + std::string(NC);
+			answerMessage = "[Croupier]: You are maybe 1 spin away from the big win.\n";
 			send(fd, answerMessage.c_str(), answerMessage.length(), 0);
 			return ;
 		}
@@ -131,7 +131,7 @@ void Server::spinCoin(int fd, bool isHead, std::string &guess)
 {
 	std::ifstream head_file("head.txt");
 	std::ifstream tail_file("tail.txt");
-	int random = rand() % 15;
+	int random = (rand() % 10) + 5;
     if (!head_file || !tail_file) {
         return ;
     }
@@ -162,5 +162,6 @@ void Server::spinCoin(int fd, bool isHead, std::string &guess)
 		clientLog(fd, head);
 	else
 		clientLog(fd, tail);
+	send(fd, NC, std::string(NC).length(), 0);
 	return;
 }
