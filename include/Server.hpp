@@ -18,14 +18,13 @@
 #include <fcntl.h>
 #include <csignal>
 #include <cstdlib>
-#include <utility> // For std::pair
+#include <utility>
 #include <fstream>
 
 #define MAX_EVENTS	10
 #include "Client.hpp"
 #include "Channel.hpp"
 
-// For DCC transfers, store socket_fd, sender_fd, and port
 struct DCCTransferInfo {
 	int socket_fd;
 	int sender_fd;
@@ -44,8 +43,8 @@ class Server {
 		static const int BUFFER_SIZE = 1024;
 		std::map<int, Client*> _clients;
 		std::map<std::string, Channel*> _channels;
-		std::map<std::string, DCCTransferInfo> _dcc_transfers; // filename -> transfer info
-		std::map<std::string, std::pair<char*, std::streamsize> > _dcc_file_contents; // filename -> (data_buffer, size)
+		std::map<std::string, DCCTransferInfo> _dcc_transfers;
+		std::map<std::string, std::pair<char*, std::streamsize> > _dcc_file_contents;
 		int _epoll_fd;
 
 		void handleNewConnection();
@@ -79,15 +78,12 @@ class Server {
 		void spinCoin(int fd, bool isHead, std::string &guess);
 		void createChannel(Client *creator, const std::string &name);
 
-		// DCC file transfer functions
 		void dcc(int fd, std::istringstream &message);
 		void dccSend(int fd, std::istringstream &message);
 		void dccAccept(int fd, std::istringstream &message);
 
-		// fonction interdite:
 		void log(int fd, std::istringstream &strm_msg);
 
-		// Dealer func
 		void dealerMessage(int fd);
 		void createCasino();
 	public:

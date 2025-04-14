@@ -4,19 +4,32 @@ CXXFLAGS = -Wall -Wextra -Werror -std=c++98
 NAME = ircserv
 
 # Source files
-SRCS = $(wildcard src/*.cpp) $(wildcard src/commands/*.cpp)
+SRCS = src/Channel.cpp \
+		src/Client.cpp \
+		src/main.cpp \
+		src/parsing.cpp \
+		src/Server.cpp \
+		src/commands/bet.cpp \
+		src/commands/dcc.cpp \
+		src/commands/invite.cpp \
+		src/commands/join.cpp \
+		src/commands/login.cpp \
+		src/commands/mode.cpp \
+		src/commands/privmsg.cpp \
+		src/commands/topic.cpp
+
 OBJS = $(SRCS:.cpp=.o)
 
 # Default target
 all: $(NAME)
 
-# Linking
-$(NAME): $(OBJS)
-	$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
-
 # Compilation
 %.o: %.cpp
 	$(CXX) $(CXXFLAGS) -c $< -o $@
+
+# Linking
+$(NAME): $(OBJS)
+	$(CXX) $(CXXFLAGS) $(OBJS) -o $(NAME)
 
 # Clean object files
 clean:

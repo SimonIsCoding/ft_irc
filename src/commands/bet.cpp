@@ -98,9 +98,9 @@ void Server::bet(int fd, std::istringstream &message)
 		return ;
 	}
 	else if (side == "both") {
-		// int max_int = std::numeric_limits<int>::max();
-		// int BOTHAMOUNT = clientMoney * 2 < max_int ? clientMoney * 2 : 1000000000;
-		_clients[fd]->setMoney(1000000000);
+		int max_int = std::numeric_limits<int>::max();
+		int BOTHAMOUNT = clientMoney * 2 < max_int ? clientMoney * 2 : 1000000000;
+		_clients[fd]->setMoney(BOTHAMOUNT);
 		std::stringstream ss;
 		ss << "You now have " << _clients[fd]->getMoney() << "$\n";
 		clientLog(fd, ss.str());

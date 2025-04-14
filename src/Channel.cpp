@@ -10,12 +10,6 @@ Channel::Channel()
 }
 
 Channel::~Channel() {
-	// tout est free dans le destructeur du server normalement
-
-	// for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
-	// 	delete (*it).second;
-	// }
-	// _clients.clear();
 }
 
 void Channel::addOperator(Client *op){

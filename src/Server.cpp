@@ -3,28 +3,23 @@
 #include <cerrno>
 
 Server::Server(int _port, std::string pass) : _port(_port), _password(pass) {
-	// Create socket
 	if ((_server_fd = socket(AF_INET, SOCK_STREAM, 0)) == 0) {
 		throw std::runtime_error("Socket creation failed");
 	}
 
-	// Configure address
 	address.sin_family = AF_INET;
 	address.sin_addr.s_addr = INADDR_ANY;
 	address.sin_port = htons(_port);
 
-	// Set socket options
 	int opt = 1;
 	if (setsockopt(_server_fd, SOL_SOCKET, SO_REUSEADDR, &opt, sizeof(opt))) {
 		throw std::runtime_error("Setsockopt failed");
 	}
 
-	// Bind socket
 	if (bind(_server_fd, (struct sockaddr *)&address, sizeof(address)) < 0) {
 		throw std::runtime_error("Bind failed");
 	}
 
-	// Listen for connections
 	if (listen(_server_fd, 3) < 0) {
 		throw std::runtime_error("Listen failed");
 	}
@@ -43,28 +38,24 @@ Server::Server(int _port, std::string pass) : _port(_port), _password(pass) {
 }
 
 Server::~Server() {
-	// Clean up all _clients
 	for (std::map<int, Client*>::iterator it = _clients.begin(); it != _clients.end(); ++it) {
 		delete (*it).second;
 	}
-	
-	// Clean up all channels
+
 	for (std::map<std::string, Channel*>::iterator it = _channels.begin(); it != _channels.end(); ++it) {
 		delete (*it).second;
 	}
-	
-	// Clean up any file buffers from pending DCC transfers
-	for (std::map<std::string, std::pair<char*, std::streamsize> >::iterator it = _dcc_file_contents.begin(); 
+
+	for (std::map<std::string, std::pair<char*, std::streamsize> >::iterator it = _dcc_file_contents.begin();
 	     it != _dcc_file_contents.end(); ++it) {
 		delete[] it->second.first;
 	}
-	
-	// Close any open DCC sockets
+
 	for (std::map<std::string, DCCTransferInfo>::iterator it = _dcc_transfers.begin();
 	     it != _dcc_transfers.end(); ++it) {
 		close(it->second.socket_fd);
 	}
-	
+
 	_clients.clear();
 	_channels.clear();
 	_dcc_transfers.clear();
@@ -97,7 +88,7 @@ void Server::run() {
 	while (g_running) {
 		int nb_events = epoll_wait(this->_epoll_fd, events, MAX_EVENTS, -1);
 		if (nb_events == -1) {
-			if (errno == EINTR)  // Interrupted by signal
+			if (errno == EINTR)
 				continue;
 			std::cerr << "epoll_wait failed\n";
 			continue;
@@ -107,7 +98,7 @@ void Server::run() {
 				ServerCommand();
 				break;
 			}
-			else if (events[i].data.fd == this->_server_fd) //receive new connection
+			else if (events[i].data.fd == this->_server_fd)
 				handleNewConnection();
 			else {
 				handleClientMessage(events[i].data.fd);
@@ -126,7 +117,7 @@ void Server::ServerCommand() {
 		return ;
 	if (stdin_content == "exit")
 		throw std::logic_error("Server shutdown");
-	if (stdin_content[0] == ':') 
+	if (stdin_content[0] == ':')
 	{
 		std::string name = stdin_content.substr(1, stdin_content.find(' ') - 1);
 		std::string content = stdin_content.substr(stdin_content.find(' ') + 1);
@@ -148,13 +139,12 @@ void Server::handleNewConnection() {
 	int client_fd;
 	int addrlen = sizeof(address);
 
-	if ((client_fd = accept(_server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0)//create client fd
+	if ((client_fd = accept(_server_fd, (struct sockaddr *)&address, (socklen_t*)&addrlen)) < 0)
 	{
 		std::cerr << "Accept failed" << std::endl;
 		return;
 	}
 
-	// Add new client
 	Client* new_client = new Client(client_fd);
 	_clients.insert(std::make_pair(client_fd, new_client));
 
@@ -172,27 +162,27 @@ void Server::handleNewConnection() {
 
 void Server::handleClientMessage(int client_fd) {
 	std::string message = _clients[client_fd]->receiveMessage();
-	std::size_t pos = message.find("\r\n");
+
+	message.erase(std::remove(message.begin(), message.end(), '\r'), message.end());
+	std::size_t pos = message.find("\n");
 	if (pos == std::string::npos) {
+		if (message.empty()) {
+			std::cout << "Client disconnected" << std::endl;
+			removeClient(client_fd);
+			return;
+		}
 		return ;
 	}
 	else {
 		while (pos != std::string::npos) {
 			std::string complete_message = message.substr(0, pos);
-
-			message = message.substr(pos + 2);
+			message = message.substr(pos + 1);
+			_clients[client_fd]->setPartial(message);
 			std::istringstream strm_msg(complete_message);
 			parsing(client_fd, strm_msg);
-			pos = message.find("\r\n");
+			pos = message.find("\n");
 		}
 	}
-	if (message.empty()) {
-		// std::cout << "Client disconnected" << std::endl;
-		// removeClient(client_fd);
-		return;
-	}
-	// std::istringstream strm_msg(message);
-	// parsing(client_fd, strm_msg);
 }
 
 void Server::removeClient(int fd) {
@@ -232,10 +222,16 @@ bool	Server::checkEmpty(std::istringstream &content)
 bool	Server::check_realname_syntax(const std::string &content)
 {
 	bool check = false;
+	size_t len = content.size() - 1;
+
+	std::size_t pos = content.find("\r");
+	if (pos == std::string::npos) {
+		len = content.size();
+	}
 
 	if (content[0] != ':')
 		return (false);
-	for (size_t i = 1; i < content.size() - 1; ++i)
+	for (size_t i = 1; i < len; ++i)
 	{
 		check = true;
 		if (!std::isalpha(content[i]) && content[i] != ' ')
@@ -280,6 +276,6 @@ void Server::createCasino() {
 void Server::commandLog(std::string command, bool success) {
 	if (success)
 		std::cout << "\033[1;32mCommand " + command + " has been done successfully.\033[0m\n" << std::endl;
-	else 
+	else
 		std::cout << "\033[1;31mFail to execute " + command << ".\033[0m\n" << std::endl;
 }

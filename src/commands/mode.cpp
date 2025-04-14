@@ -3,7 +3,7 @@
 #include "../../include/Channel.hpp"
 
 int countMatchingChars(const std::string& s1, bool addition) {
-    int count = 0;
+	int count = 0;
 	std::string s2;
 
 	if (addition)
@@ -11,14 +11,14 @@ int countMatchingChars(const std::string& s1, bool addition) {
 	else
 		s2 = "o";
 
-    for (size_t i = 0; i < s1.length(); ++i) {
-        char c = s1[i];
+	for (size_t i = 0; i < s1.length(); ++i) {
+		char c = s1[i];
 
-        if (s2.find(c) != std::string::npos) {
-            ++count;
-        }
-    }
-    return count;
+		if (s2.find(c) != std::string::npos) {
+			++count;
+		}
+	}
+	return count;
 }
 
 void	Server::mode(int fd, std::istringstream &strm_msg)

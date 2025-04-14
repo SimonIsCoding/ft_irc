@@ -17,7 +17,7 @@ class Client {
 		std::string _username;
 		std::vector<std::string> _user_data;
 		int money;
-		std::string _partial_message; // Buffer for partial messages
+		std::string _partial_message;
 
 		static const int BUFFER_SIZE = 1024;
 
@@ -35,6 +35,7 @@ class Client {
 		void setRealname(const std::string realname) { this->_user_data[3] = realname; }
 		int getMoney(void) const { return this->money; }
 		void setMoney(int newAmount) {this->money = newAmount >= 0 ? newAmount : 0; }
+		void setPartial(std::string newMessage) { _partial_message = newMessage; }
 
 		void sendMessage(const std::string& message);
 		std::string receiveMessage();

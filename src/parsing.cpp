@@ -14,7 +14,7 @@ void Server::parsing(int fd, std::istringstream &strm_msg){
 	std::string command;
 	std::string commands[] = {"PASS", "USER", "NICK", "PRIVMSG", "JOIN", "KICK", "TOPIC", "INVITE", "MODE", "BET", "DCC", "PING"};
 	strm_msg >> command;
-	std::cout << "sic: " << strm_msg.str() << std::endl;
+	// std::cout << "sic: _" << strm_msg.str() << "_" << std::endl;
 	int len = sizeof(commands) / sizeof(commands[0]);
 	if (command == "l")
 		return log(fd, strm_msg);
