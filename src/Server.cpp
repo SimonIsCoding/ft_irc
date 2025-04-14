@@ -172,13 +172,27 @@ void Server::handleNewConnection() {
 
 void Server::handleClientMessage(int client_fd) {
 	std::string message = _clients[client_fd]->receiveMessage();
+	std::size_t pos = message.find("\r\n");
+	if (pos == std::string::npos) {
+		return ;
+	}
+	else {
+		while (pos != std::string::npos) {
+			std::string complete_message = message.substr(0, pos);
+
+			message = message.substr(pos + 2);
+			std::istringstream strm_msg(complete_message);
+			parsing(client_fd, strm_msg);
+			pos = message.find("\r\n");
+		}
+	}
 	if (message.empty()) {
-		std::cout << "Client disconnected" << std::endl;
-		removeClient(client_fd);
+		// std::cout << "Client disconnected" << std::endl;
+		// removeClient(client_fd);
 		return;
 	}
-	std::istringstream strm_msg(message);
-	parsing(client_fd, strm_msg);
+	// std::istringstream strm_msg(message);
+	// parsing(client_fd, strm_msg);
 }
 
 void Server::removeClient(int fd) {
@@ -201,7 +215,7 @@ void Server::removeClient(int fd) {
 }
 
 void Server::clientLog(int fd, std::string message){
-	message = "[SERVER]: " + message;
+	message = "IRCSERVER: " + message;
 	send(fd, message.c_str(), message.length(), 0);
 }
 

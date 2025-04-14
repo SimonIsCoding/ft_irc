@@ -17,6 +17,7 @@ class Client {
 		std::string _username;
 		std::vector<std::string> _user_data;
 		int money;
+		std::string _partial_message; // Buffer for partial messages
 
 		static const int BUFFER_SIZE = 1024;
 

@@ -29,7 +29,9 @@ std::string Client::receiveMessage() {
 		return "";
 	}
 
-	return std::string(buffer, valread);
+	_partial_message.append(buffer, valread);
+
+	return _partial_message;
 }
 
 void Client::disconnect() {
