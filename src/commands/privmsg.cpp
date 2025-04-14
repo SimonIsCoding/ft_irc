@@ -22,12 +22,12 @@ void Server::privmsg(int fd, std::istringstream &message)
 		size_t dcc_start = content.find(" :DCC ");
 		if (dcc_start == std::string::npos)
 			dcc_start = content.find(" :\001DCC ");
-		
+
 		std::string dcc_part = content.substr(dcc_start + 2);
-		
+
 		if (dcc_part[0] == '\001')
 			dcc_part = dcc_part.substr(1, dcc_part.length() - (dcc_part[dcc_part.length()-1] == '\001' ? 2 : 1));
-		
+
 		std::istringstream dcc_stream(dcc_part);
 		dcc(fd, dcc_stream);
 		return;
@@ -72,14 +72,14 @@ void Server::sendChannel(int fd, std::string &channelname, std::string &content)
 void Server::dealerMessage(int fd) {
 	std::string message;
 
-	if (_clients[fd]->getMoney() == 0) 
+	if (_clients[fd]->getMoney() == 0)
 		message = "[Croupier]: I dont talk with poor guy.\n";
-	else if (_clients[fd]->getMoney() < 1000) 
-		message = "[Croupier]: Haha looks like you loose money on #casino.\n";
+	else if (_clients[fd]->getMoney() < 1000)
+		message = "[Croupier]: Haha looks like you lost money on #casino.\n";
 	else if(_clients[fd]->getMoney() > 1001)
 		message = "[Croupier]: All in for the lore.\n";
 	else if(!_channels["#casino"]->isMember(fd))
-		message = "[Croupier]: Hello bud, i'm the croupier of the channel #casino. Join us, gambling is funnier than take care of childrens.\n";
+		message = "[Croupier]: Hello bud, i'm the croupier of the channel #casino. Join us, gambling is funnier than taking care of children.\n";
 	else if(_channels["#casino"]->isMember(fd) && _clients[fd]->getMoney() == 1001) {
 		message = "[Croupier]: Looks like you finally discovered the fun part of irc. You can send me a privsmsg if you want to learn how to play.\n";
 		_clients[fd]->setMoney(1000);

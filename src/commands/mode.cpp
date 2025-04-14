@@ -142,6 +142,8 @@ void	Server::limit_mode(int fd, bool addition, std::string channelname, std::str
 		commandLog("MODE", false);
 		return (clientLog(fd, "'" + limit +  "' is not a valid argument for user limit.\n"));
 	}
+	if (limit_number < 0)
+		return (clientLog(fd, "limit given must be a positive number.\n"));
 	_channels[channelname]->setUserLimit(limit_number);
 	commandLog("MODE", true);
 	return (clientLog(fd, "The channel user limit has been set to " + limit + ".\n"));

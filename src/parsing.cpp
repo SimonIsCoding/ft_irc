@@ -2,22 +2,21 @@
 #include "../include/Client.hpp"
 #include "../include/Channel.hpp"
 
-void Server::log(int fd, std::istringstream &strm_msg)
-{
-	_clients[fd]->increaseStatus();
-	nick(fd, strm_msg);
-	_clients[fd]->increaseStatus();
-}
+// void Server::log(int fd, std::istringstream &strm_msg)
+// {
+// 	_clients[fd]->increaseStatus();
+// 	nick(fd, strm_msg);
+// 	_clients[fd]->increaseStatus();
+// }
 
 void Server::parsing(int fd, std::istringstream &strm_msg){
 	int i;
 	std::string command;
 	std::string commands[] = {"PASS", "USER", "NICK", "PRIVMSG", "JOIN", "KICK", "TOPIC", "INVITE", "MODE", "BET", "DCC", "PING"};
 	strm_msg >> command;
-	// std::cout << "sic: _" << strm_msg.str() << "_" << std::endl;
 	int len = sizeof(commands) / sizeof(commands[0]);
-	if (command == "l")
-		return log(fd, strm_msg);
+	// if (command == "l")
+	// 	return log(fd, strm_msg);
 	for (i = 0 ; i < len ; i++){
 		if (commands[i] == command)
 			break;

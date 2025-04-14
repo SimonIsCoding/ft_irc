@@ -8,7 +8,8 @@ Client::Client(int socket) : _socket_fd(socket),  _user_data(4) {
 	this->_user_data[1] = "hostname";
 	this->_user_data[2] = "servername";
 	this->_user_data[3] = "realname";
-	sendMessage("Welcome to the IRC server!\r\n");
+	if (socket != 10001)
+		sendMessage("Welcome to the IRC server!\r\n");
 }
 
 Client::~Client() {
