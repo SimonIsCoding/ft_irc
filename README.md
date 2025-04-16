@@ -140,7 +140,7 @@ Example:
 
 ### Basic Commands
 
-#### PASS (Set password to enter in the server - only once at the beginning)
+#### PASS (Set password to enter in the server - used only once at the beginning)
 - **Purpose**: Set your password
 - **sic Syntax**: `:PASS <password>`
 - **netcat Syntax**: `PASS <password>`
@@ -153,7 +153,7 @@ Example:
   PASS john_doe
   ```
 
-#### NICK (Set Nickname - only once at the beginning)
+#### NICK (Set Nickname - used only once at the beginning)
 - **Purpose**: Set your nickname
 - **sic Syntax**: `:NICK <new_nickname>`
 - **netcat Syntax**: `NICK <new_nickname>`
@@ -166,7 +166,7 @@ Example:
   NICK john_doe
   ```
 
-  #### USER (Set Username - only once at the beginning)
+  #### USER (Set Username - used only once at the beginning)
 - **Purpose**: Set your Username
 - **sic Syntax**: `:USER <username> <hostname> <servername> :<realname>`
 - **netcat Syntax**: `USER <username> <hostname> <servername> :<realname>`
@@ -181,8 +181,8 @@ Example:
 
 #### JOIN (Join Channel)
 - **Purpose**: Join a channel
-- **sic Syntax**: `:JOIN #<channel_name>`
-- **netcat Syntax**: `JOIN #<channel_name>`
+- **sic Syntax**: `:JOIN \#<channel_name>`
+- **netcat Syntax**: `JOIN \#<channel_name>`
 - **Example**:
   ```bash
   # sic
@@ -274,7 +274,7 @@ Example:
   :MODE #general +o john_doe  # Make john_doe an operator
   :MODE #general -o john_doe  # Remove john_doe as operator
   :MODE #general +l john_doe  # Make john_doe an operator
-  > **Note:** MODE can take several letter at the same time, as long as the argument written after are well configured.
+> [!NOTE] MODE can take several letter at the same time, as long as the argument written after are well configured.
   :MODE #general +l john_doe  # Make john_doe an operator
   
   # netcat
