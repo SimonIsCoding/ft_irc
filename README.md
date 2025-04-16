@@ -79,23 +79,18 @@ The epoll API consists of three main system calls:
    - Returns the number of ready file descriptors
    - Used for event-driven programming
 
-## Connecting to the Server
+## Building and Running
 
-### Using the Official IRC Client (sic)
-1. Install sic:
-```bash
-sudo apt-get install sic
-```
-
-2. Connect to the server:
-```bash
-sic -h localhost -p <port> -n <nickname>
-```
+1. Clone the repository
+2. Run `make` to build the project
+3. Start the server: `./ircserv <port> <password>`
 
 Example:
 ```bash
-sic -h localhost -p 6667 -n user1
+./ircserv 6667 password123
 ```
+
+## Connecting to the Server
 
 ### Using Netcat
 1. Connect to the server:
@@ -118,30 +113,176 @@ NICK user1
 USER user1 0 * :John Doe
 ```
 
-## Bonus Features
+### Using the Official IRC Client (sic)
+1. Install sic:
+```bash
+sudo apt-get install sic
+```
 
-### Casino Game
-The server includes a casino game feature where users can:
-- Play various games of chance
-- Bet virtual currency
-- Win or lose based on game outcomes
+2. Connect to the server:
+```bash
+sic -h localhost -p <port> -n <nickname> -k <password>
+```
 
-Commands:
-- `/casino join`: Join the casino
-- `/casino bet <amount>`: Place a bet
-- `/casino games`: List available games
-- `/casino balance`: Check your balance
+Example:
+```bash
+sic -h localhost -p 6667 -n user1 -k password123
+```
 
-### File Transfer (DCC)
-The server supports Direct Client-to-Client (DCC) file transfers, allowing users to:
-- Send files directly between clients
-- Resume interrupted transfers
-- Monitor transfer progress
+3. Using commands with sic:
+:<command> <argument>
 
-Commands on sic:
-- `:DDC SEND <nickname> <filename>`: Send a file to another user
-- `:DDC ACCEPT <nickname>`: Accept an incoming file transfer
-- `/dcc cancel <nickname>`: Cancel an ongoing transfer
+Example:
+:JOIN #channel_name
+:PRIVMSG <nickname> <content>
+
+## IRC Commands
+
+### Basic Commands
+
+#### NICK (Set Nickname - only once at the beginning)
+- **Purpose**: Set your nickname
+- **sic Syntax**: `:NICK <new_nickname>`
+- **netcat Syntax**: `NICK <new_nickname>`
+- **Example**:
+  ```bash
+  # sic
+  :NICK john_doe
+  
+  # netcat
+  NICK john_doe
+  ```
+
+#### JOIN (Join Channel)
+- **Purpose**: Join a channel
+- **sic Syntax**: `:JOIN #<channel_name>`
+- **netcat Syntax**: `JOIN #<channel_name>`
+- **Example**:
+  ```bash
+  # sic
+  :JOIN #general
+  
+  # netcat
+  JOIN #general
+  ```
+
+<!-- #### PART (Leave Channel)
+- **Purpose**: Leave a channel
+- **sic Syntax**: `:PART #<channel_name>`
+- **netcat Syntax**: `PART #<channel_name>`
+- **Example**:
+  ```bash
+  # sic
+  :PART #general
+  
+  # netcat
+  PART #general
+  ``` -->
+
+#### PRIVMSG (Private Message)
+- **Purpose**: Send a private message to a user or channel
+- **sic Syntax**: `:PRIVMSG <target> <message>`
+- **netcat Syntax**: `PRIVMSG <target> <message>`
+- **Example**:
+  ```bash
+  # sic
+  :PRIVMSG #general Hello everyone!
+  :PRIVMSG john_doe Hi there!
+  
+  # netcat
+  PRIVMSG #general Hello everyone!
+  PRIVMSG john_doe Hi there!
+  ```
+
+<!-- #### QUIT (Disconnect)
+- **Purpose**: Disconnect from the server
+- **sic Syntax**: `:QUIT :<message>`
+- **netcat Syntax**: `QUIT :<message>`
+- **Example**:
+  ```bash
+  # sic
+  :QUIT :Goodbye everyone!
+  
+  # netcat
+  QUIT :Goodbye everyone!
+  ``` -->
+
+### Channel Management Commands
+
+#### TOPIC (Set Channel Topic)
+- **Purpose**: Set or view channel topic
+- **sic Syntax**: `:TOPIC #<channel_name> :<new_topic>`
+- **netcat Syntax**: `TOPIC #<channel_name> :<new_topic>`
+- **Example**:
+  ```bash
+  # sic
+  :TOPIC #general :Welcome to the general chat!
+  
+  # netcat
+  TOPIC #general :Welcome to the general chat!
+  ```
+
+#### KICK (Remove User from Channel)
+- **Purpose**: Remove a user from a channel
+- **sic Syntax**: `:KICK #<channel_name> <nickname> :<reason>`
+- **netcat Syntax**: `KICK #<channel_name> <nickname> :<reason>`
+- **Example**:
+  ```bash
+  # sic
+  :KICK #general john_doe :Being disruptive
+  
+  # netcat
+  KICK #general john_doe :Being disruptive
+  ```
+
+#### MODE (Set Channel Modes)
+- **Purpose**: Set channel modes (operator, voice, etc.)
+- **sic Syntax**: `:MODE #<channel_name> <mode> <nickname>`
+- **netcat Syntax**: `MODE #<channel_name> <mode> <nickname>`
+- **Example**:
+  ```bash
+  # sic
+  :MODE #general +o john_doe  # Make john_doe an operator
+  
+  # netcat
+  MODE #general +o john_doe
+  ```
+
+### Bonus Commands
+
+#### Casino Commands
+- **Purpose**: Play casino games
+- **sic Syntax**: `:CASINO <command> <arguments>`
+- **netcat Syntax**: `CASINO <command> <arguments>`
+- **Examples**:
+  ```bash
+  # sic
+  :CASINO JOIN
+  :CASINO BET 100
+  :CASINO GAMES
+  
+  # netcat
+  CASINO JOIN
+  CASINO BET 100
+  CASINO GAMES
+  ```
+
+#### DCC (File Transfer) Commands
+- **Purpose**: Transfer files between users
+- **sic Syntax**: `:DCC <command> <arguments>`
+- **netcat Syntax**: `DCC <command> <arguments>`
+- **Examples**:
+  ```bash
+  # sic
+  :DCC SEND john_doe file.txt
+  :DCC ACCEPT john_doe
+  :DCC CANCEL john_doe
+  
+  # netcat
+  DCC SEND john_doe file.txt
+  DCC ACCEPT john_doe
+  DCC CANCEL john_doe
+  ```
 
 ## Main Classes and Methods
 
@@ -178,12 +319,6 @@ Commands on sic:
   - `removeClient(Client* client)`: Removes a client from the channel
   - `broadcastMessage(std::string message)`: Sends a message to all channel members
   - `getClients()`: Returns list of channel clients
-
-## Building and Running
-
-1. Clone the repository
-2. Run `make` to build the project
-3. Start the server: `./ircserv <port> <password>`
 
 
 ## Dependencies
