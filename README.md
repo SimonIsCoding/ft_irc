@@ -128,13 +128,7 @@ Example:
 ```bash
 sic -h localhost -p 6667 -n user1 -k password123
 ```
-
-<!-- 3. Using commands with sic:
-:<command> <argument>
-
-Example:
-:JOIN #channel_name
-:PRIVMSG <nickname> <content> -->
+> [!NOTE] By setting sic that way, you will not have to use PASS, NICK and USER commands.
 
 ## IRC Commands
 
@@ -186,24 +180,11 @@ Example:
 - **Example**:
   ```bash
   # sic
-  :JOIN \#general
+  :JOIN #general
   
   # netcat
-  JOIN \#general
+  JOIN #general
   ```
-
-<!-- #### PART (Leave Channel)
-- **Purpose**: Leave a channel
-- **sic Syntax**: `:PART #<channel_name>`
-- **netcat Syntax**: `PART #<channel_name>`
-- **Example**:
-  ```bash
-  # sic
-  :PART #general
-  
-  # netcat
-  PART #general
-  ``` -->
 
 #### PRIVMSG (Private Message)
 - **Purpose**: Send a private message to a user or channel
@@ -212,26 +193,13 @@ Example:
 - **Example**:
   ```bash
   # sic
-  :PRIVMSG \#general Hello everyone!
+  :PRIVMSG #general Hello everyone!
   :PRIVMSG john_doe Hi there!
   
   # netcat
-  PRIVMSG \#general Hello everyone!
+  PRIVMSG #general Hello everyone!
   PRIVMSG john_doe Hi there!
   ```
-
-<!-- #### QUIT (Disconnect)
-- **Purpose**: Disconnect from the server
-- **sic Syntax**: `:QUIT :<message>`
-- **netcat Syntax**: `QUIT :<message>`
-- **Example**:
-  ```bash
-  # sic
-  :QUIT :Goodbye everyone!
-  
-  # netcat
-  QUIT :Goodbye everyone!
-  ``` -->
 
 ### Channel Management Commands
 
@@ -242,10 +210,10 @@ Example:
 - **Example**:
   ```bash
   # sic
-  :TOPIC \#general :Welcome to the general chat!
+  :TOPIC #general :Welcome to the general chat!
   
   # netcat
-  TOPIC \#general :Welcome to the general chat!
+  TOPIC #general :Welcome to the general chat!
   ```
 
 #### KICK (Remove User from Channel)
@@ -255,36 +223,89 @@ Example:
 - **Example**:
   ```bash
   # sic
-  :KICK \#general john_doe :Being disruptive
+  :KICK #general john_doe :Being disruptive
   
   # netcat
-  KICK \#general john_doe :Being disruptive
+  KICK #general john_doe :Being disruptive
   ```
 
-#### MODE (Set Channel Modes)
-- **Purpose**: Set channel modes (operator, voice, etc.)
-- **sic Syntax**: `:MODE #<channel_name> <mode> <nickname>`
-- **netcat Syntax**: `MODE #<channel_name> <mode> <nickname>`
+#### INVITE (Invite User to Channel)
+- **Purpose**: Invite a user to join a channel
+- **sic Syntax**: `:INVITE <nickname> #<channel_name>`
+- **netcat Syntax**: `INVITE <nickname> #<channel_name>`
 - **Example**:
   ```bash
   # sic
-  :MODE \#general +i john_doe  # Make john_doe an operator
-  :MODE \#general +t john_doe  # Make john_doe an operator
-  :MODE \#general +k john_doe  # Make john_doe an operator
-  :MODE \#general +o john_doe  # Make john_doe an operator
-  :MODE \#general -o john_doe  # Remove john_doe as operator
-  :MODE \#general +l john_doe  # Make john_doe an operator
-  :MODE \#general +l john_doe  # Make john_doe an operator
+  :INVITE john_doe #general
   
   # netcat
-  MODE \#general +o john_doe # Make john_doe an operator
+  INVITE john_doe #general
   ```
-> [!NOTE] MODE can take several letter at the same time. But they have to be well written, with the good parameters in the right order.
 
-### Bonus Commands
+#### MODE (Set Channel Modes) - Detailed Explanation
+- **Purpose**: Set channel modes to control channel behavior and user permissions
+- **Available Modes**:
+  - `+i` / `-i`: Invite-only mode
+    - `+i`: Only users with an invite can join
+    - `-i`: Anyone can join (default)
+  - `+t` / `-t`: Topic protection
+    - `+t`: Only operators can change the topic
+    - `-t`: Anyone can change the topic (default)
+  - `+k` / `-k`: Channel key (password)
+    - `+k <key>`: Set a password to join the channel
+    - `-k`: Remove the password
+  - `+o` / `-o`: Operator status
+    - `+o <nickname>`: Give operator status to a user
+    - `-o <nickname>`: Remove operator status from a user
+  - `+l` / `-l`: User limit
+    - `+l <number>`: Set maximum number of users
+    - `-l`: Remove user limit
+
+- **Examples of Multiple Modes**:
+  ```bash
+  # sic
+  :MODE #general +i  # Set invite-only
+  :MODE #general +t  # Set topic protection
+  :MODE #general +k password123  # Set channel password
+  :MODE #general +o john_doe  # Make john_doe an operator
+  :MODE #general +l 10  # Set user limit to 10
+  
+  # Combine multiple modes in one command
+  :MODE #general +itk password123  # Set invite-only, topic protection, and password
+  :MODE #general +ol john_doe 10  # Make john_doe operator and set user limit
+  
+  # netcat
+  MODE #general +i  # Set invite-only
+  MODE #general +t  # Set topic protection
+  MODE #general +k password123  # Set channel password
+  MODE #general +o john_doe  # Make john_doe an operator
+  MODE #general +l 10  # Set user limit to 10
+  
+  # Combine multiple modes in one command
+  MODE #general +itk password123  # Set invite-only, topic protection, and password
+  MODE #general +o john_doe +l 10  # Make john_doe operator and set user limit
+  ```
+
+> [!NOTE] When combining multiple modes in one command:
+> - Modes that require parameters (like +k and +l) must be specified in the correct order
+> - The parameters must match the order of the modes that require them
+> - Example: `MODE #channel +kl password 10` is correct, but `MODE #channel +lk 10 password` is not
+
+### Bonus Part
 
 #### Casino Commands
 - **Purpose**: Play casino games
+> [!NOTE] For best results, it's better to play on netcat
+1. Join the casino:
+	- on netcat:
+  ```bash
+  JOIN #casino
+  ```
+	- on sic:
+  ```bash
+  :JOIN #casino
+  ```
+
 - **sic Syntax**: `:CASINO <command> <arguments>`
 - **netcat Syntax**: `CASINO <command> <arguments>`
 - **Examples**:
