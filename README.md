@@ -128,7 +128,8 @@ Example:
 ```bash
 sic -h localhost -p 6667 -n user1 -k password123
 ```
-> [!NOTE] By setting sic that way, you will not have to use PASS, NICK and USER commands.
+> [!NOTE]
+> By setting sic that way, you will not have to use PASS, NICK and USER commands.
 
 ## IRC Commands
 
