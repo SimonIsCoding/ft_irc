@@ -129,7 +129,7 @@ Example:
 sic -h localhost -p 6667 -n user1 -k password123
 ```
 > [!NOTE]
-> By setting sic that way, you will not have to use PASS, NICK and USER commands.
+> By setting sic that way, you will not have to use PASS ans NICK commands. The next one to enter will be USER.
 
 ## IRC Commands
 
@@ -175,9 +175,9 @@ sic -h localhost -p 6667 -n user1 -k password123
   ```
 
 #### JOIN (Join Channel)
+> [!NOTE]
+> To join a channel, you can use the '#' or the '&' before the channel's name. But #channel is different from &channel.
 - **Purpose**: Join a channel
-  > [!NOTE]
-  > To join a channel, you can use the '#' or the '&' before the channel's name.
 - **sic Syntax**: `:JOIN &<channel_name>`
 - **netcat Syntax**: `JOIN &<channel_name>`
 - **Example**:
@@ -235,8 +235,8 @@ sic -h localhost -p 6667 -n user1 -k password123
   KICK &general john_doe
   KICK &general john_doe :Being disruptive
   ```
-  > [!NOTE]
-  > The <reason> argument is optionnal.
+> [!NOTE]
+> The <reason> argument is optionnal.
 
 #### INVITE (Invite User to Channel)
 - **Purpose**: Invite a user to join a channel
@@ -309,28 +309,33 @@ sic -h localhost -p 6667 -n user1 -k password123
 > [!NOTE]
 > For best results, it's better to play on netcat
 1. Join the casino:
-	- on netcat:
   ```bash
+  # netcat
   JOIN #casino
-  ```
-	- on sic:
-  ```bash
+  
+  # sic
   :JOIN #casino
   ```
 
-- **sic Syntax**: `:CASINO <command> <arguments>`
-- **netcat Syntax**: `CASINO <command> <arguments>`
+2. How to play ? - Let's ask the Croupier (Dealer).
+  ```bash
+  # netcat
+  PRIVMSG Croupier How to play ?
+  
+  # sic
+  :PRIVMSG Croupier How to play ? 
+  ```
+
+3. You can start betting.
+- **netcat Syntax**: `BET <head or tail> <amount of money>`
+- **sic Syntax**: `:BET <head or tail> <amount of money>`
 - **Examples**:
   ```bash
-  # sic
-  :CASINO JOIN
-  :CASINO BET 100
-  :CASINO GAMES
-  
   # netcat
-  CASINO JOIN
-  CASINO BET 100
-  CASINO GAMES
+  BET head 5
+  
+  # sic
+  :BET head 5 
   ```
 
 #### DCC (File Transfer) Commands
@@ -341,14 +346,18 @@ sic -h localhost -p 6667 -n user1 -k password123
   ```bash
   # sic
   :DCC SEND john_doe file.txt
-  :DCC ACCEPT john_doe
-  :DCC CANCEL john_doe
+  :DCC ACCEPT file.txt
+  <!-- :DCC CANCEL john_doe -->
   
   # netcat
   DCC SEND john_doe file.txt
-  DCC ACCEPT john_doe
-  DCC CANCEL john_doe
+  DCC ACCEPT file.txt
+  <!-- DCC CANCEL john_doe -->
   ```
+- **File downloaded**: If the file is accepted, you will receive the same file withthe extension "_download" at the end of the filename. You may have to rename it to suits your needs.
+
+> [!NOTE]
+> The file size doesn't have to exceed 1MB.
 
 ## Main Classes and Methods
 
