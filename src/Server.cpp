@@ -204,6 +204,7 @@ void Server::removeClient(int fd) {
 	}
 }
 
+//Just a basic function to send msg from the IRC in the client
 void Server::clientLog(int fd, std::string message){
 	message = "IRCSERVER: " + message;
 	send(fd, message.c_str(), message.length(), 0);
@@ -273,6 +274,7 @@ void Server::createCasino() {
 	createChannel(new_client, "#casino");
 }
 
+//We sent some messages in the server to say if we well executedthe command or not
 void Server::commandLog(std::string command, bool success) {
 	if (success)
 		std::cout << "\033[1;32mCommand " + command + " has been done successfully.\033[0m\n" << std::endl;
