@@ -181,15 +181,15 @@ Example:
 
 #### JOIN (Join Channel)
 - **Purpose**: Join a channel
-- **sic Syntax**: `:JOIN \#<channel_name>`
-- **netcat Syntax**: `JOIN \#<channel_name>`
+- **sic Syntax**: `:JOIN #<channel_name>`
+- **netcat Syntax**: `JOIN #<channel_name>`
 - **Example**:
   ```bash
   # sic
-  :JOIN #general
+  :JOIN \#general
   
   # netcat
-  JOIN #general
+  JOIN \#general
   ```
 
 <!-- #### PART (Leave Channel)
@@ -212,11 +212,11 @@ Example:
 - **Example**:
   ```bash
   # sic
-  :PRIVMSG #general Hello everyone!
+  :PRIVMSG \#general Hello everyone!
   :PRIVMSG john_doe Hi there!
   
   # netcat
-  PRIVMSG #general Hello everyone!
+  PRIVMSG \#general Hello everyone!
   PRIVMSG john_doe Hi there!
   ```
 
@@ -242,10 +242,10 @@ Example:
 - **Example**:
   ```bash
   # sic
-  :TOPIC #general :Welcome to the general chat!
+  :TOPIC \#general :Welcome to the general chat!
   
   # netcat
-  TOPIC #general :Welcome to the general chat!
+  TOPIC \#general :Welcome to the general chat!
   ```
 
 #### KICK (Remove User from Channel)
@@ -255,10 +255,10 @@ Example:
 - **Example**:
   ```bash
   # sic
-  :KICK #general john_doe :Being disruptive
+  :KICK \#general john_doe :Being disruptive
   
   # netcat
-  KICK #general john_doe :Being disruptive
+  KICK \#general john_doe :Being disruptive
   ```
 
 #### MODE (Set Channel Modes)
@@ -268,18 +268,18 @@ Example:
 - **Example**:
   ```bash
   # sic
-  :MODE #general +i john_doe  # Make john_doe an operator
-  :MODE #general +t john_doe  # Make john_doe an operator
-  :MODE #general +k john_doe  # Make john_doe an operator
-  :MODE #general +o john_doe  # Make john_doe an operator
-  :MODE #general -o john_doe  # Remove john_doe as operator
-  :MODE #general +l john_doe  # Make john_doe an operator
-> [!NOTE] MODE can take several letter at the same time, as long as the argument written after are well configured.
-  :MODE #general +l john_doe  # Make john_doe an operator
+  :MODE \#general +i john_doe  # Make john_doe an operator
+  :MODE \#general +t john_doe  # Make john_doe an operator
+  :MODE \#general +k john_doe  # Make john_doe an operator
+  :MODE \#general +o john_doe  # Make john_doe an operator
+  :MODE \#general -o john_doe  # Remove john_doe as operator
+  :MODE \#general +l john_doe  # Make john_doe an operator
+  :MODE \#general +l john_doe  # Make john_doe an operator
   
   # netcat
-  MODE #general +o john_doe # Make john_doe an operator
+  MODE \#general +o john_doe # Make john_doe an operator
   ```
+> [!NOTE] MODE can take several letter at the same time. But they have to be well written, with the good parameters in the right order.
 
 ### Bonus Commands
 
