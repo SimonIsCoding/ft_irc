@@ -2,6 +2,9 @@
 
 This project implements an IRC (Internet Relay Chat) server using C++98 and Linux system calls. The server handles multiple client connections, channels, and various IRC commands.
 
+## Final score
+<img src="https://github.com/SimonIsCoding/utils_and_random/blob/main/ft_irc_grade.png"/>
+
 ## Socket Programming Basics
 
 ### What is a Socket?
