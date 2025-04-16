@@ -33,7 +33,7 @@ void Server::invite(int fd, std::istringstream &strm_msg)
 			return (clientLog(fd, _clients[dest_fd]->getNickname() + " is already invited to this channel.\n"));
 		}
 		_channels[channelname]->inviteUser(_clients[dest_fd]);
-		clientLog(dest_fd, "You have been invted to join channel " + channelname + ".\n");
+		clientLog(dest_fd, "You have been invited to join channel " + channelname + ".\n");
 		commandLog("INVITE", true);
 		return (clientLog(fd, "User " + _clients[dest_fd]->getNickname() + " has been invited to channel " + channelname + ".\n"));
 	} else {

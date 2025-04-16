@@ -97,6 +97,9 @@ Example:
 
 ## Connecting to the Server
 
+> [!NOTE]
+> For the project, the correction sheets specifies that you can "do some test with the IRC client and nc at the same time". Each time, both syntax are written. But they have to be executed in two diferent windows.
+
 ### Using Netcat
 1. Connect to the server:
 ```bash
@@ -318,12 +321,10 @@ sic -h localhost -p 6667 -n user1 -k password123
   # sic
   :DCC SEND john_doe file.txt
   :DCC ACCEPT file.txt
-  <!-- :DCC CANCEL john_doe -->
   
   # netcat
   DCC SEND john_doe file.txt
   DCC ACCEPT file.txt
-  <!-- DCC CANCEL john_doe -->
   ```
 - **File downloaded**: If the file is accepted, you will receive the same file withthe extension "_download" at the end of the filename. You may have to rename it to suits your needs.
 
@@ -405,8 +406,8 @@ sic -h localhost -p 6667 -n user1 -k password123
 - C++ compiler with C++98 support
 - Linux system (for epoll)
 - Make
-- sic (optional, for official client testing)
-- netcat (optional, for basic testing)
+- sic (for official client testing)
+- netcat (for basic testing)
 
 ## Security Considerations
 - Password protection for server access

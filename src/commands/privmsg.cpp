@@ -53,7 +53,7 @@ void Server::privmsg(int fd, std::istringstream &message)
 void Server::sendChannel(int fd, std::string &channelname, std::string &content){
 	if (!doChannelExist(channelname)) {
 		commandLog("PRIVMSG", false);
-		return clientLog(fd, "Channel do not exist.\n");
+		return clientLog(fd, "Channel does not exist.\n");
 	}
 	std::map<int, Client*> members = _channels[channelname]->getMembers();
 	content = "[" + channelname + "] " + _clients[fd]->getNickname() + ":" + content + '\n';
