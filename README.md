@@ -102,7 +102,7 @@ nc localhost <port>
 ```
 PASS <password>
 NICK <nickname>
-USER <username> 0 * :<realname>
+USER <username> <hostname> <servername> :<realname>
 ```
 
 Example:
@@ -129,16 +129,29 @@ Example:
 sic -h localhost -p 6667 -n user1 -k password123
 ```
 
-3. Using commands with sic:
+<!-- 3. Using commands with sic:
 :<command> <argument>
 
 Example:
 :JOIN #channel_name
-:PRIVMSG <nickname> <content>
+:PRIVMSG <nickname> <content> -->
 
 ## IRC Commands
 
 ### Basic Commands
+
+#### PASS (Set password to enter in the server - only once at the beginning)
+- **Purpose**: Set your password
+- **sic Syntax**: `:PASS <password>`
+- **netcat Syntax**: `PASS <password>`
+- **Example**:
+  ```bash
+  # sic
+  :PASS john_doe
+  
+  # netcat
+  PASS john_doe
+  ```
 
 #### NICK (Set Nickname - only once at the beginning)
 - **Purpose**: Set your nickname
@@ -151,6 +164,19 @@ Example:
   
   # netcat
   NICK john_doe
+  ```
+
+  #### USER (Set Username - only once at the beginning)
+- **Purpose**: Set your Username
+- **sic Syntax**: `:USER <username> <hostname> <servername> :<realname>`
+- **netcat Syntax**: `USER <username> <hostname> <servername> :<realname>`
+- **Example**:
+  ```bash
+  # sic
+  :USER user1 0 * :John Doe
+  
+  # netcat
+  USER user1 0 * :John Doe
   ```
 
 #### JOIN (Join Channel)
@@ -242,10 +268,17 @@ Example:
 - **Example**:
   ```bash
   # sic
+  :MODE #general +i john_doe  # Make john_doe an operator
+  :MODE #general +t john_doe  # Make john_doe an operator
+  :MODE #general +k john_doe  # Make john_doe an operator
   :MODE #general +o john_doe  # Make john_doe an operator
+  :MODE #general -o john_doe  # Remove john_doe as operator
+  :MODE #general +l john_doe  # Make john_doe an operator
+  > **Note:** MODE can take several letter at the same time, as long as the argument written after are well configured.
+  :MODE #general +l john_doe  # Make john_doe an operator
   
   # netcat
-  MODE #general +o john_doe
+  MODE #general +o john_doe # Make john_doe an operator
   ```
 
 ### Bonus Commands
