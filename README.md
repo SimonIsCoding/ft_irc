@@ -241,7 +241,7 @@ sic -h localhost -p 6667 -n user1 -k password123
   KICK &general john_doe :Being disruptive
   ```
 > [!NOTE]
-> The <reason> argument is optionnal.
+> The reason argument is optionnal.
 
 #### INVITE (Invite User to Channel)
 - **Purpose**: Invite a user to join a channel
@@ -309,10 +309,31 @@ sic -h localhost -p 6667 -n user1 -k password123
 
 ### Bonus Part
 
+#### DCC (File Transfer) Commands
+- **Purpose**: Transfer files between users
+- **sic Syntax**: `:DCC <command> <arguments>`
+- **netcat Syntax**: `DCC <command> <arguments>`
+- **Examples**:
+  ```bash
+  # sic
+  :DCC SEND john_doe file.txt
+  :DCC ACCEPT file.txt
+  <!-- :DCC CANCEL john_doe -->
+  
+  # netcat
+  DCC SEND john_doe file.txt
+  DCC ACCEPT file.txt
+  <!-- DCC CANCEL john_doe -->
+  ```
+- **File downloaded**: If the file is accepted, you will receive the same file withthe extension "_download" at the end of the filename. You may have to rename it to suits your needs.
+
+> [!NOTE]
+> The file size doesn't have to exceed 1MB.
+
 #### Casino Commands
 - **Purpose**: Play casino games
 > [!NOTE]
-> For best results, it's better to play on netcat
+> For best results, it's better to play on netcat.
 1. Join the casino:
   ```bash
   # netcat
@@ -342,27 +363,6 @@ sic -h localhost -p 6667 -n user1 -k password123
   # sic
   :BET head 5 
   ```
-
-#### DCC (File Transfer) Commands
-- **Purpose**: Transfer files between users
-- **sic Syntax**: `:DCC <command> <arguments>`
-- **netcat Syntax**: `DCC <command> <arguments>`
-- **Examples**:
-  ```bash
-  # sic
-  :DCC SEND john_doe file.txt
-  :DCC ACCEPT file.txt
-  <!-- :DCC CANCEL john_doe -->
-  
-  # netcat
-  DCC SEND john_doe file.txt
-  DCC ACCEPT file.txt
-  <!-- DCC CANCEL john_doe -->
-  ```
-- **File downloaded**: If the file is accepted, you will receive the same file withthe extension "_download" at the end of the filename. You may have to rename it to suits your needs.
-
-> [!NOTE]
-> The file size doesn't have to exceed 1MB.
 
 ## Main Classes and Methods
 
